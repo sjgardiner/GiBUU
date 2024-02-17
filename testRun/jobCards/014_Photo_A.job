@@ -1,0 +1,153 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for high energy lepton on nucleon (deuterium)
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype       =          14 ! HiLepton
+      numEnsembles    =          -2
+      numTimeSteps    =           0
+
+      length_perturbative = 2000 ! okay up to ..., Xe
+!      length_perturbative = 4000 ! okay for Pb
+
+      num_runs_SameEnergy=1  ! number of runs per energy
+!      num_runs_SameEnergy=10000  ! number of runs per energy
+
+      localEnsemble = .TRUE.
+      freezeRealParticles = .TRUE.
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: ./density/nucleus.f90
+&target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 54, A=131 ! Xe
+!      Z= 82, A=208 ! Pb
+/
+
+! file: ./init/initHiLepton.f90
+&HiLeptonNucleus
+      shadow  = F
+!      DoStatistics = T ! additional output
+      iExperiment= 0 ! no experiment/fixed kinematics
+/
+
+! file: ./analysis/HiLeptonAnalysis.f90
+&HiLepton_Analysis
+      DoLeptonKinematics = T
+!      DoHadronKinematics = T
+!      DoTimes       = T
+!      DoOutChannels = T
+!      DoInvMasses   = T
+!      DoFindRho0    = T
+!      DoClasie      = T
+!      DoMorrow      = T
+
+!      DoClassifyFirst = T
+/
+
+! file: code/init/initHiLepton.f90
+&HiPhotonKinematics
+!      eps = 0.99, Q2 = 0.1, W = 0.95
+      eps = 0.99, Q2 = 0.1, W = 1.50
+!      eps = 0.99, Q2 = 0.1, nu = 1.75
+!      srts = 5.0, Q2 = 0.1, nu = 3.75
+!      Ebeam = 23.4, Q2 = 0.5, nu = 7.75
+/
+
+! file: code/init/ElectronGenerator/eventGenerator_eN_HiEnergy.f90
+&HiGammaNucleus
+!      DoTransEv=F,
+!      useHermesPythiaPars=F,
+!      PYTHIAthresh=  2.0000000000000000     ,
+!      DoDiffr=T,
+!      useVMD_VM= 4*T,
+!      DoLowEv=T,
+!      allowRes=T,
+!      useRes= 30*T,
+!      allow1pi=F,
+!      allow2piBack=F,
+!      allowDIS=F,
+!      allowVMDrho=F,
+      allow2p2hQE=T,
+!      allow2p2hDelta=T,
+ /
+
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch   = 2 ! 2: static density
+/
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 2 ! 0: no Pauli blocking, 1: dynamic, 2: analytic
+/
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=4567                ! Seed for the random number
+/
+
+! file: ./collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91) = 0.44     ! width intrinsic kT
+/
+
+! file: ./potential/baryonPotential.f90
+&baryonPotential
+!      noPerturbativePotential = T ! perturbative baryons feel no potential
+/
+
+! file: ./potential/mesonPotential.f90
+&mesonPotential
+!      noPerturbativePotential = T ! perturbative mesons feel no potential
+/
+
+! file: ./collisions/twoBodyReactions/master_2Body.f90
+&master_2Body
+      correctEnergy_message=.false. ! reduce verbosity
+/
+
+! file: ./collisions/collisionTerm.f90
+&collisionterm
+      energyCheck     =  0.100
+/
+
+! file: ./collisions/insertion.f90
+&insertion
+      minimumEnergy   =  0.100 ! minimal kinetic energy of produced nucleons (GeV)
+/
+
+! file: ./analysis/EventOutputAnalysis.f90
+&EventOutput
+!      WritePerturbativeParticles = T  ! if you want that output
+!      EventFormat=1 ! 1=LesHouches(default), 2=Oscar, 3=Shanghai, 4=ROOT
+/
+
+! file: ./collisions/collisionReporter.f90
+&collReporter
+!      UseCollReporter=.TRUE. ! if you want that output
+      cR_sizeT = 100
+      cR_sizeE =  20
+      cR_DeltaT=  0.2
+      cR_DeltaE=  0.2
+/

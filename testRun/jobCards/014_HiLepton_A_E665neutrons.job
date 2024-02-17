@@ -1,0 +1,149 @@
+
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for high energy lepton on a nucleus with real particles
+! specialized for the description of E665 data on slow neutron production
+! in \mu^- + Pb DIS at 470 GeV, see http://inspirehep.net/record/404381.
+! Variants of this job-card were used in http://inspirehep.net/record/1710338.
+! NOTE
+! It is supposed that the user applies his(her) own analysis routine for adding up
+! the contribution of statistically evaporated neutrons which would read the file
+! TargetResidue.dat and call the SMM routine which is included in the GiBUU repository
+! in the file testRun/ClusterCode/code/smm/SMM.f.
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+
+! file: ./init/initHiLepton.f90
+&HiPhotonKinematics
+     xBj=0.16
+     W=30. ! GeV
+     eps=0.05
+/
+
+! file: ./init/ElectronGenerator/eventGenerator_eN_HiEnergy.f90
+&HiGammaNucleus
+    flagTwoJets=.false.
+/
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype       =          14 ! HiLepton
+      numEnsembles    =         200
+      numTimeSteps    = 500
+      delta_T=0.2
+      length_perturbative=1
+      length_real=500
+      num_runs_SameEnergy=1  ! number of runs per energy
+      DoPrLevel(1) = T
+      DoPrLevel(2) = .FALSE.
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: ./density/nucleus.f90
+&target
+      Z= 82, A=208
+      densitySwitch_static = 3
+/
+
+! file: ./init/initHiLepton.f90
+&HiLeptonNucleus
+      shadow  = F
+      iExperiment= 18 ! E665, 470GeV
+      realRun=T
+      user_smin=0.88 ! =mN**2
+      user_qsqmin=0.8
+      user_ymax=1.
+      minimumMomentum=0.  ! GeV/c
+/
+
+! file: ./collisions/twoBodyReactions/hadronFormation.f90
+&hadronFormation
+      use_pCut=T
+      pCut=1.0 ! GeV/c
+/
+
+! file: code/analysis/HeavyIonAnalysis.f90
+&HICanalysis_Input
+      flag_outputPert = F
+      flag_outputReal = T
+/
+
+! file: code/analysis/HiLeptonAnalysis.f90
+&HiLepton_Analysis
+     flagDoIt=F
+/
+
+! file: code/analysis/sourceAnalysis/residue.f90
+&residue_Input
+      DetermineResidue=T
+/
+
+!     file: code/collisions/history.f90
+&history
+      IncGeneration_Elastic = F  ! Remove history change for elastic collisions
+/
+
+! file: code/rmf/RMF.f90
+&RMF_input
+  RMF_flag     = T,   ! if .true. then use relativistic mean field
+  grad_flag    = T,
+  lorentz_flag = T,
+  N_set        = 2,   ! number of the parameter set
+  fact_pbar    = 0.22,
+  fact_hyp     = 0.666666,
+  fact_antihyp = 0.666666,
+  fact_Xi      = 0.333333,
+  fact_antiXi  = 0.333333,
+  fact_kaon    = 0.333333,
+/
+
+! file: code/potential/coulomb/coulomb.f90
+&Coulomb
+CoulombFlag=T
+/
+
+! file: code/potential/baryonPotential.f90
+&baryonPotential
+      EQS_TYPE        =  5
+      symmetryPotFlag=1    ! linear density dependence
+/
+
+! file: code/propagation/propagation.f90
+&Propagation
+      UseHadronic        = T
+      UseCoulombDirectly = F
+      Mode = 2  ! PredictorCorrector
+/
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch   = 2 ! 2: static density
+/
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 2 ! 0: no Pauli blocking, 1: dynamic, 2: analytic
+/
+
+! file: ./numerics/random.f90
+&initRandom
+  SEED= 111
+/
+
+! file: ./collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91) = 0.44     ! width intrinsic kT
+/
+
+! file: ./collisions/twoBodyReactions/master_2Body.f90
+&master_2Body
+      correctEnergy_message=.false. ! reduce verbosity
+/
+
+!     file: ./collisions/collisionTerm.f90
+&collisionTerm
+      energyCheck=10000.
+/

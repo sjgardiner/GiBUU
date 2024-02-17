@@ -1,0 +1,151 @@
+!-------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for nucleons and Deltas in a box
+!
+! This jobcard is intended to check detailed balance for the reactions
+!     NN <-> ND, ND <-> ND, NN <-> DD
+! Deltas are considered to be stable, other resonances are disabled.
+!
+! The box is initialized with nucleons and Deltas according a given
+! temperature, but scaled by an overall fugacity to yield a baryon
+! density as the nuclear density (~0.168 fm-3)
+!
+!-----------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!-----------------------------------------------------------------------
+
+
+! file: code/inputOutput/input.f90
+&input
+      eventtype       =          41 ! Box
+      numEnsembles = 1000
+      numTimeSteps = 10 ! just for this example
+!      numTimeSteps = 1000
+      delta_T         =  0.1    ! time step size [fm]
+
+      length_real = 1500
+
+      continousBoundaries     = T
+
+!      printParticleVectors    = T
+!      DoPrLevel(1) = .FALSE.
+!      DoPrLevel(2) = .FALSE.
+
+      localEnsemble = .TRUE.
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: code/init/initBox.f90
+&Box
+      thermalInit = T
+      Temp(1:2) = 2*0.060
+      Fugacity(1:2) = 2*1.97789923225318902582e6
+      noAnti = T
+/
+
+
+! file: code/analysis/BoxAnalysis.f90
+&BoxAnalysis
+      useSet = F,T,F,F,F
+/
+
+
+! file: code/potential/baryonPotential.f90
+&baryonPotential
+      EQS_TYPE        =  0
+/
+
+! file: ./potential/coulomb/coulomb.f90
+&coulomb
+      coulombFlag      = F
+/
+
+
+! file: code/density/density.f90
+&initDensity
+      densitySwitch   = 1 ! 1: dynamic
+      gridsize = 10., 10., 10. ! +- size of the box [fm]
+/
+
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 0
+/
+
+! file: code/collisions/phaseSpace/winkelVerteilung.f90
+&angular_distribution
+      deltaPWave              = F
+      pionNucleon_backward    = F
+      NNisotropic             = T
+/
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=45678                ! Seed for the random number
+/
+
+! file: code/analysis/sourceAnalysis/residue.f90
+&residue_Input
+      DetermineResidue=F
+/
+
+
+! file: ./database/particleProperties.f90
+&ModifyParticles
+      propagated(3:100) = 98*0
+      stabilityFlag(2:122)   = 121*0
+/
+
+! file: code/collisions/collisionTerm.f90
+&collisionTerm
+      twoBodyProcesses = .T.
+      twoBodyProcessesRealPert = .F.
+!      threeBodyProcesses = .F.
+!      threeMesonProcesses = .F.
+      doForceDecay = .F.
+      maxOut = 6
+      noRecollisions = T
+/
+
+! file: code/collisions/twoBodyReactions/master_2Body.f90
+&master_2body
+!      mesonMesonScattering    = F
+      useHiEnergy             = F
+      HiEnergyThresholdBarBar = 5.0
+/
+
+! file: code/collisions/twoBodyReactions/baryonBaryon/barBar_barBarMes.f90
+&barBar_barBarMes
+      NNpi = .false.
+!      NNpi_BG = 0
+      NNV_BG= .false.
+/
+! file: code/collisions/insertion.f90
+&insertion
+      minimumEnergy   =  0.000
+/
+
+! file: code/propagation/propagation.f90
+&propagation
+      Mode = 3
+/
+
+
+! file: code/width/baryonWidthVacuum.f90
+&baryonWidthVacuum
+!      Delta_width = 6
+/
+
+! file: code/width/baryonWidth.f90
+&baryonWidth
+      readTable = F
+/
+
+! file: code/collisions/twoBodyReactions/twoBodyStatistics.f90
+&ColStat
+      flag_varirate = T
+      varirate_chargeZero = F
+/

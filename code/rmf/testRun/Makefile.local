@@ -1,0 +1,3 @@
+SUBDIREXCL :=
+FILEEXCL :=test_RMF.f90 test_PD.f90 plotMass.f90
+EXEFILE :=test_RMF.f90 test_PD.f90 plotMass.f90

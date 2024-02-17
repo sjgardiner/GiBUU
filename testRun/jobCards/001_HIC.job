@@ -1,0 +1,123 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for heavy ion collisions
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype           =       1 ! Heavy Ion Collisions (low energy)
+      numEnsembles        =     200
+      num_runs_sameEnergy =       1
+
+      numTimeSteps        =     500
+      time_max            =   100.0
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+
+! file: ./init/initHeavyIon.f90
+&heavyIon
+      impact_parameter    =   0.000
+      impact_profile      = 0
+      distance            =   12.5
+      coulomb             = F
+      ekin_lab_Target     =   0.000
+      ekin_lab_Projectile =   5.000
+      adjustGridFlag      = T
+      cmsFlag             = T
+ /
+
+! file: ./density/nucleus.f90
+&projectile
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+!      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+      Z= 20, A= 40 ! Ca
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 54, A=131 ! Xe
+!      Z= 82, A=208 ! Pb
+/
+
+! file: ./density/nucleus.f90
+&target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+!      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+      Z= 20, A= 40 ! Ca
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 54, A=131 ! Xe
+!      Z= 82, A=208 ! Pb
+/
+
+
+
+
+! file: ./database/particleProperties.f90
+&initDatabase
+      propagationSwitch = 0     ! 0=all resonances with more than 1 star
+/
+
+! file: ./rmf/RMF.f90
+&RMF_input
+      RMF_flag  = T             ! use relativistic mean field
+      N_set     = 3             ! Number of the parameter set
+!      fact_hyp =0.667 ! scaling factor for hyperon coupling
+!      fact_kaon=0.333 ! scaling factor for kaon coupling
+/
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch       = 1   ! 1=dynamic density according to testparticle density
+      linearInterpolation = F
+      gridSize            = 20, 20, 30 ! size of the box [fm]
+      gridPoints          = 20, 20, 30 ! Number of grid points
+/
+
+! file: ./collisions/collisionTerm.f90
+&collisionterm
+!      oneBodyProcesses        = F
+!      twoBodyProcesses        = F
+      threeBodyProcesses      = F
+      energyCheck     =  0.100  ! accuracy of energy check in GeV
+      maxOut  =          20
+/
+
+
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=11111                ! Seed for the random number
+/
+
+! file: ./collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91) = 0.44           ! width intrinsic kT
+/
+
+! file: ./collisions/phaseSpace/winkelVerteilung.f90
+&angular_distribution
+      deltaPWave              = F
+      rho_pipi_nonIsotropic   = F
+      pionNucleon_backward    = F
+/

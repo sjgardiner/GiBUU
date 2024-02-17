@@ -1,0 +1,63 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for real photon induced reactions
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype           =       3 ! real photon induced
+      numEnsembles        =      -1
+      num_runs_sameEnergy =       1
+
+      numTimeSteps        =       2 ! number of time steps
+
+
+!     DoPrLevel(1) = .FALSE. ! set this for production runs
+!     DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: code/init/lowPhoton/initLowPhoton.f90
+&low_photo_induced
+      energy_gamma    =   1.9
+      twoPi           = F
+      vecMes          = T, F, F
+/
+
+! file: ./density/nucleus.f90
+&target
+!     fermiMotion = .FALSE.
+!     Z=  1, A=  1 ! proton,neutron, deuterium
+!     Z=  4, A=  9, densitySwiytch_Static=4 ! Be
+!     Z=  6, A= 12, densitySwitch_Static=4 ! C
+!     Z=  6, A= 12 ! C
+!     Z=  7, A= 14 ! N
+!     Z= 10, A= 20 ! Ne
+!     Z= 16, A= 32 ! S
+      Z= 20, A= 40 ! Ca
+!     Z= 26, A= 56 ! Fe
+!     Z= 29, A= 64 ! Cu
+!     Z= 36, A= 84 ! Kr
+!     Z= 54, A=131 ! Xe
+!     Z= 82, A=208 ! Pb
+/
+
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch   = 2       ! 2: static density
+/
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 2       ! 0: no Pauli blocking, 1: dynamic, 2: analytic
+/
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=45678                ! Seed for the random number
+/

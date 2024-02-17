@@ -1,0 +1,139 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for anti-deuteron induced collisions
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/inputGeneral.f90
+&input
+      eventtype           =       1 ! Heavy Ion Collisions (low energy)
+      numEnsembles        =    2000
+      num_runs_sameEnergy =       1
+
+      numTimeSteps        =     150 ! number of time steps
+
+      length_real         = 60
+      length_perturbative = 0
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+      version = 2023
+
+!      printParticleVectors = T
+/
+
+
+! file: ./init/initHeavyIon.f90
+&heavyIon
+      impact_parameter    =  0.000
+!      impact_parameter    =  -999.9
+      distance            =   0! 10.0
+      ekin_lab_Target     =   0.000
+      ekin_lab_Projectile =   1.092
+      adjustGridFlag      = F   ! see fixed values below
+/
+
+! file: ./density/nucleus.f90
+&projectile
+!      Z= 0, A= 1, anti = T      ! anti-neutron
+!      Z= 1, A= 1, anti = T      ! anti-proton
+      Z= 1, A= 2, anti = T      ! anti-deuterium
+/
+
+! file: code/init/deuterium.f90
+&deuteriumFermi
+!      waveFunction_switch=1     ! 1=Bonn, 2=Argonne
+/
+
+
+! file: ./density/nucleus.f90
+&target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+!      Z= 20, A= 40 ! Ca
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 54, A=131 ! Xe
+!      Z= 82, A=208 ! Pb
+/
+
+
+
+
+! file: ./database/particleProperties.f90
+&initDatabase
+      propagationSwitch = 0     ! 0=all resonances with more than 1 star
+/
+
+! file: ./rmf/RMF.f90
+&RMF_input
+      RMF_flag  = T             ! use relativistic mean field
+      N_set     = 3             ! Number of the parameter set
+
+      flagCorThr      = T
+      fact_pbar       =  0.220000
+      fact_hyp        =  0.666666
+      fact_antihyp    =  0.666666
+      fact_Xi         =  0.333333
+      fact_antiXi     =  0.333333
+      fact_kaon       =  0.333333
+/
+
+! file: code/potential/coulomb/coulomb.f90
+&coulomb
+      coulombFlag = T
+      cutMomentumPotential = 0.
+/
+
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch       = 1   ! 1=dynamic density according to testparticle density
+      linearInterpolation = F
+      gridSize            = 20, 20, 30 ! size of the box [fm]
+      gridPoints          = 40, 40, 60 ! Number of grid points
+/
+
+! file: ./collisions/collisionTerm.f90
+&collisionterm
+!      oneBodyProcesses        = F
+!      twoBodyProcesses        = F
+      threeBodyProcesses      = F
+      energyCheck     =  0.100  ! accuracy of energy check in GeV
+      maxOut  =          20
+/
+
+
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=11111                ! Seed for the random number
+/
+
+! file: ./collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91) = 0.44           ! width intrinsic kT
+/
+
+! file: code/propagation/propagation.f90
+&propagation
+      delta_P=0.0001
+      delta_E=0.0001
+      dh_dp0_switch=T
+/
+
+! file: ./analysis/EventOutputAnalysis.f90
+&EventOutput
+      WriteRealParticles = T  ! if you want that output
+!      EventFormat=1 ! 1=LesHouches(default), 2=Oscar, 3=Shanghai, 4=ROOT
+/

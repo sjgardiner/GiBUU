@@ -1,0 +1,86 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! This jobcard was used to produce results for
+! the code-comparison project (box homework 1).
+!------------------------------------------------------------------------------
+! * box size (20fm)^3
+! * temperature T=0
+! * Cascade mode (no potentials) + Pauli blocking
+! * constant isotropic elastic XS
+! * no ineastic collisions
+!------------------------------------------------------------------------------
+
+&input
+  eventtype           =  31   ! box
+  numEnsembles        = 100
+  num_runs_sameEnergy =   1
+  length_real = 2000
+
+  delta_T             = 0.5
+  numTimeSteps        = 280
+
+  path_To_Input   = '~/GiBUU/buuinput'
+
+  continousBoundaries = T
+    version = 2023
+/
+
+&initInABox
+  proton_Density  = 0.08   ! fm^-3
+  neutron_Density = 0.08   ! fm^-3
+  fermiMotion     = T
+  temp            = 0.
+/
+
+&initDensity
+  densitySwitch = 1           ! 1=dynamic density according to testparticle density
+  ! this should be the size for productive runs:
+  !gridSize      = 10, 10, 10 ! half-size of the box [fm]
+  !gridPoints    = 40, 40, 40 ! Number of grid points
+  ! this is used for test purposes:
+  gridSize      =  2,  2,  2 ! half-size of the box [fm]
+  gridPoints    =  8,  8,  8  ! Number of grid points
+  !  splineExtrapolation = F
+/
+
+&initPauli
+  pauliSwitch = 1   ! 0=none, 1=dynamic, 2=analytic
+/
+
+&EventOutput
+  WriteRealParticles = T
+  EventFormat        = 3   ! 1=LesHouches(default), 2=Oscar, 3=Shanghai, 4=ROOT
+  Interval           = 40
+/
+
+
+&baryonPotential
+  EQS_Type        = 0     ! 12 = Shanghai Meeting
+  symmetryPotFlag = 1
+  dsymm           = 0.03
+/
+
+&coulomb
+  coulombFlag = F
+/
+
+
+&collisionterm
+  oneBodyProcesses   = F
+  twoBodyProcesses   = T
+  threeBodyProcesses = F
+  maxOut             = 4
+  collisionProtocol  = T
+/
+
+&master_2body
+  flagElastBB = T
+/
+
+&angular_distribution
+  NNisotropic = T
+/
+
+! file: code/numerics/random.f90
+&initRandom
+      Seed = 45678              ! seed for the random number
+/

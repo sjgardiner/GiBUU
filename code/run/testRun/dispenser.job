@@ -1,0 +1,118 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for neutrino induced interactions, T2K ND-280 flux
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype       =           5 ! neutrino interactions
+      numEnsembles    =        1000
+      numTimeSteps    =         10
+      delta_T         =         0.2 ! time step size [fm]
+      freezeRealParticles  = T
+      localEnsemble   = T
+!      printParticleVectors = T ! ???
+!      LRF_equals_CALC_frame= T ! ???
+      num_runs_sameEnergy=2
+
+!      DoPrLevel(1) = .FALSE.
+!      DoPrLevel(2) = .FALSE.
+
+      path_To_Input   = '~/GiBUU/buuinput'
+/
+
+! file: code/density/nucleus.f90
+&target
+      Target_A = 12
+      Target_Z =  6
+      densitySwitch_static = 2  ! 2=according NPA 554 (Oset)
+      ReAdjustForConstBinding = T
+/
+
+! file code/density/density.f90
+&initDensity
+      densitySwitch = 2         ! 2=analytic
+/
+
+! file code/density/pauliBlocking.f90
+&initPauli
+      pauliSwitch = 2           ! 2=analytic
+/
+
+! file code/init/neutrino/initNeutrino.f90
+&neutrino_induced
+       process_ID      =  2 ! 2:CC, 3:NC, -2:antiCC, -3:antiNC
+       flavor_ID       =  2 ! 1:electron, 2:muon, 3:tau
+
+       nuXsectionMode  = 16 ! 16: EXP_dSigmaMC
+       nuExp           =  9 !  9: T2K-2.5kA-ND280
+
+!   subprocesses to take into account:
+       includeQE       = T
+       includeDELTA    = T
+       includeRES      = T
+       include1pi      = T
+       includeDIS      = T
+       include2p2hQE   = T
+       include2p2hDelta= F
+       include2pi      = F
+/
+
+! file code/init/neutrino/esample.f90
+&nl_fluxcuts
+       Enu_lower_cut =  0.0
+       Enu_upper_cut = 20.0
+       energylimit_for_Qsrec = T   ! using fluxcuts also in Q^2 reconstr.
+/
+
+! file code/init/neutrino/neutrinoXsection.f90
+&nl_neutrinoxsection
+      invariantMasscut=20.      ! mass cuts on Wrec
+      invariantMassCut_BG = 20. ! mass cuts on Wrec
+/
+
+! file code/init/neutrino/neutrinoXsection.f90
+!&nl_SigmaMC
+!    MC_xmax=2.0 ! to get QE peak in nuclei, where Bjorken_x larger than 1
+!    enu=99.9
+!/
+
+! file code/propagation/propagation.f90
+&propagation
+	RungeKuttaOrder=2  ! 2=second order Range-Kutta
+/
+! file code/width/baryonWidthMedium.f90
+&width_Baryon
+      mediumSwitch = T
+      mediumSwitch_Delta = T ! Use Oset broadening of the Delta
+                             ! (only relevant for mediumSwitch_coll=.false.)
+      mediumSwitch_coll = F  ! Use collisional broadening of all resonances
+/
+
+! file code/collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+   PARP(91)=0.44
+/
+
+! file code/numerics/random.f90
+&initRandom
+      Seed = 45678
+/
+
+! file: code/analysis/EventOutputAnalysis.f90
+&EventOutput
+      WritePerturbativeParticles = T
+      WriteRealParticles = F
+      EventFormat = 1 ! 1=LesHouches, 4=ROOT
+/
+
+      &insertion
+      propagatenophoton = F
+      /
+
+      &ModifyParticles
+      stabilityFlag(102) = 0
+/

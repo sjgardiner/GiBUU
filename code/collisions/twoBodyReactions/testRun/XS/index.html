@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+       "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>GiBUU cross sections</title>
+</head>
+<body>
+<!-- <img src=../logo1.jpg > -->
+<div id="header">
+  <a id="logo" href="https://gibuu.hepforge.org/trac/wiki"><img src="http://gibuu.hepforge.org/logo.jpg" alt="(please configure the [header_logo] section in trac.ini)" height="122" width="1000" /></a>
+</div>
+
+<h2>Calculate Cross Sections</h2>
+
+
+<form method="post" action="calcXS.php">
+
+<table border="1" cellspacing="10" cellpadding="20">
+
+<tr>
+  <th colspan="2"> Projectile Particle</th>
+  <th colspan="2"> Target Particle</th>
+</tr>
+
+<tr>
+  <td rowspan="2">
+    <select name="ID1" size="23" style="width: 120px">
+      <optgroup label="Baryons">
+	<option  value="1" selected>N               </option>
+	<option  value="2"> &Delta;                 </option>
+	<option  value="3"> P&#x2081;&#x2081;(1440) </option>
+	<option  value="4"> S&#x2081;&#x2081;(1535) </option>
+	<option  value="5"> S&#x2081;&#x2081;(1650) </option>
+	<option  value="6"> S&#x2081;&#x2081;(2090) </option>
+	<option  value="7"> D&#x2081;&#x2083;(1520) </option>
+	<option  value="8"> D&#x2081;&#x2083;(1700) </option>
+	<option  value="9"> D&#x2081;&#x2083;(2080) </option>
+	<option  value="10">D&#x2081;&#x2085;(1675) </option>
+	<option  value="11">G&#x2081;&#x2087;(2190) </option>
+	<option  value="12">P&#x2081;&#x2081;(1710) </option>
+	<option  value="13">P&#x2081;&#x2081;(2100) </option>
+	<option  value="14">P&#x2081;&#x2083;(1720) </option>
+	<option  value="15">P&#x2081;&#x2083;(1900) </option>
+	<option  value="16">F&#x2081;&#x2085;(1680) </option>
+	<option  value="17">F&#x2081;&#x2085;(2000) </option>
+	<option  value="18">F&#x2081;&#x2087;(1990) </option>
+	<option  value="19">S&#x2083;&#x2081;(1620) </option>
+	<option  value="20">S&#x2083;&#x2081;(1900) </option>
+	<option  value="21">D&#x2083;&#x2083;(1700) </option>
+	<option  value="22">D&#x2083;&#x2083;(1940) </option>
+	<option  value="23">D&#x2083;&#x2085;(1930) </option>
+	<option  value="24">D&#x2083;&#x2085;(2350) </option>
+	<option  value="25">P&#x2083;&#x2081;(1750) </option>
+	<option  value="26">P&#x2083;&#x2081;(1910) </option>
+	<option  value="27">P&#x2083;&#x2083;(1600) </option>
+	<option  value="28">P&#x2083;&#x2083;(1920) </option>
+	<option  value="29">F&#x2083;&#x2085;(1750) </option>
+	<option  value="30">F&#x2083;&#x2085;(1905) </option>
+	<option  value="31">F&#x2083;&#x2087;(1950) </option>
+	<option  value="32">&Lambda;                </option>
+	<option  value="33">&Sigma;                 </option>
+	<option  value="34">&Sigma;(1385)           </option>
+	<option  value="35">&Lambda;(1405)          </option>
+	<option  value="36">&Lambda;(1520)          </option>
+	<option  value="37">&Lambda;(1600)          </option>
+	<option  value="38">&Lambda;(1670)          </option>
+	<option  value="39">&Lambda;(1690)          </option>
+	<option  value="40">&Lambda;(1810)          </option>
+	<option  value="41">&Lambda;(1820)          </option>
+	<option  value="42">&Lambda;(1830)          </option>
+	<option  value="43">&Sigma;(1670)           </option>
+	<option  value="44">&Sigma;(1775)           </option>
+	<option  value="45">&Sigma;(2030)           </option>
+	<option  value="46">&Lambda;(1800)          </option>
+	<option  value="47">&Lambda;(1890)          </option>
+	<option  value="48">&Lambda;(2100)          </option>
+	<option  value="49">&Lambda;(2110)          </option>
+	<option  value="50">&Sigma;(1660)           </option>
+	<option  value="51">&Sigma;(1750)           </option>
+	<option  value="52">&Sigma;(1915)           </option>
+	<option  value="53">&Xi;                    </option>
+	<option  value="54">&Xi;*                   </option>
+	<option  value="55">&Omega;                 </option>
+	<option  value="56">&Lambda;_c              </option>
+	<option  value="57">&Sigma;_c               </option>
+	<option  value="58">&Sigma;_c*              </option>
+	<option  value="59">&Xi;_c                  </option>
+	<option  value="60">&Xi;_c*                 </option>
+	<option  value="61">&Omega;_c               </option>
+      </optgroup>
+      <optgroup label="Mesons">
+	<option  value="101">&pi;               </option>
+	<option  value="102">&eta;              </option>
+	<option  value="103">&rho;              </option>
+	<option  value="104">&sigma;            </option>
+	<option  value="105">&omega;            </option>
+	<option  value="106">&eta;'             </option>
+	<option  value="107">&phi;              </option>
+	<option  value="108">&eta;_c            </option>
+	<option  value="109">J/&psi;            </option>
+	<option  value="110">K                  </option>
+	<option  value="111">K&#773;            </option>
+	<option  value="112">K*                 </option>
+	<option  value="113">K&#773;*           </option>
+	<option  value="114">D                  </option>
+	<option  value="115">D&#773;            </option>
+	<option  value="116">D*                 </option>
+	<option  value="117">D&#773;*           </option>
+	<option  value="118">D&#x209B;&#x207A;  </option>
+	<option  value="119">D&#x209B;&#x207B;  </option>
+	<option  value="120">D*&#x209B;&#x207A; </option>
+	<option  value="121">D*&#x209B;&#x207B; </option>
+	<option  value="122">f&#x2082;(1270)    </option>
+      </optgroup>
+    </select>
+  </td>
+
+  <td>
+    <input type="radio" name="anti1" value="false" checked> Particle     <br>
+    <input type="radio" name="anti1" value="true"         > Antiparticle
+  </td>
+
+  <td rowspan="2">
+    <select name="ID2" size="23" style="width: 120px">
+      <optgroup label="Baryons">
+	<option  value="1" selected>N               </option>
+	<option  value="2"> &Delta;                 </option>
+	<option  value="3"> P&#x2081;&#x2081;(1440) </option>
+	<option  value="4"> S&#x2081;&#x2081;(1535) </option>
+	<option  value="5"> S&#x2081;&#x2081;(1650) </option>
+	<option  value="6"> S&#x2081;&#x2081;(2090) </option>
+	<option  value="7"> D&#x2081;&#x2083;(1520) </option>
+	<option  value="8"> D&#x2081;&#x2083;(1700) </option>
+	<option  value="9"> D&#x2081;&#x2083;(2080) </option>
+	<option  value="10">D&#x2081;&#x2085;(1675) </option>
+	<option  value="11">G&#x2081;&#x2087;(2190) </option>
+	<option  value="12">P&#x2081;&#x2081;(1710) </option>
+	<option  value="13">P&#x2081;&#x2081;(2100) </option>
+	<option  value="14">P&#x2081;&#x2083;(1720) </option>
+	<option  value="15">P&#x2081;&#x2083;(1900) </option>
+	<option  value="16">F&#x2081;&#x2085;(1680) </option>
+	<option  value="17">F&#x2081;&#x2085;(2000) </option>
+	<option  value="18">F&#x2081;&#x2087;(1990) </option>
+	<option  value="19">S&#x2083;&#x2081;(1620) </option>
+	<option  value="20">S&#x2083;&#x2081;(1900) </option>
+	<option  value="21">D&#x2083;&#x2083;(1700) </option>
+	<option  value="22">D&#x2083;&#x2083;(1940) </option>
+	<option  value="23">D&#x2083;&#x2085;(1930) </option>
+	<option  value="24">D&#x2083;&#x2085;(2350) </option>
+	<option  value="25">P&#x2083;&#x2081;(1750) </option>
+	<option  value="26">P&#x2083;&#x2081;(1910) </option>
+	<option  value="27">P&#x2083;&#x2083;(1600) </option>
+	<option  value="28">P&#x2083;&#x2083;(1920) </option>
+	<option  value="29">F&#x2083;&#x2085;(1750) </option>
+	<option  value="30">F&#x2083;&#x2085;(1905) </option>
+	<option  value="31">F&#x2083;&#x2087;(1950) </option>
+	<option  value="32">&Lambda;                </option>
+	<option  value="33">&Sigma;                 </option>
+	<option  value="34">&Sigma;(1385)           </option>
+	<option  value="35">&Lambda;(1405)          </option>
+	<option  value="36">&Lambda;(1520)          </option>
+	<option  value="37">&Lambda;(1600)          </option>
+	<option  value="38">&Lambda;(1670)          </option>
+	<option  value="39">&Lambda;(1690)          </option>
+	<option  value="40">&Lambda;(1810)          </option>
+	<option  value="41">&Lambda;(1820)          </option>
+	<option  value="42">&Lambda;(1830)          </option>
+	<option  value="43">&Sigma;(1670)           </option>
+	<option  value="44">&Sigma;(1775)           </option>
+	<option  value="45">&Sigma;(2030)           </option>
+	<option  value="46">&Lambda;(1800)          </option>
+	<option  value="47">&Lambda;(1890)          </option>
+	<option  value="48">&Lambda;(2100)          </option>
+	<option  value="49">&Lambda;(2110)          </option>
+	<option  value="50">&Sigma;(1660)           </option>
+	<option  value="51">&Sigma;(1750)           </option>
+	<option  value="52">&Sigma;(1915)           </option>
+	<option  value="53">&Xi;                    </option>
+	<option  value="54">&Xi;*                   </option>
+	<option  value="55">&Omega;                 </option>
+	<option  value="56">&Lambda;_c              </option>
+	<option  value="57">&Sigma;_c               </option>
+	<option  value="58">&Sigma;_c*              </option>
+	<option  value="59">&Xi;_c                  </option>
+	<option  value="60">&Xi;_c*                 </option>
+	<option  value="61">&Omega;_c               </option>
+      </optgroup>
+      <optgroup label="Mesons">
+	<option  value="101">&pi;               </option>
+	<option  value="102">&eta;              </option>
+	<option  value="103">&rho;              </option>
+	<option  value="104">&sigma;            </option>
+	<option  value="105">&omega;            </option>
+	<option  value="106">&eta;'             </option>
+	<option  value="107">&phi;              </option>
+	<option  value="108">&eta;_c            </option>
+	<option  value="109">J/&psi;            </option>
+	<option  value="110">K                  </option>
+	<option  value="111">K&#773;            </option>
+	<option  value="112">K*                 </option>
+	<option  value="113">K&#773;*           </option>
+	<option  value="114">D                  </option>
+	<option  value="115">D&#773;            </option>
+	<option  value="116">D*                 </option>
+	<option  value="117">D&#773;*           </option>
+	<option  value="118">D&#x209B;&#x207A;  </option>
+	<option  value="119">D&#x209B;&#x207B;  </option>
+	<option  value="120">D*&#x209B;&#x207A; </option>
+	<option  value="121">D*&#x209B;&#x207B; </option>
+	<option  value="122">f&#x2082;(1270)    </option>
+      </optgroup>
+    </select>
+  </td>
+
+  <td>
+    <input type="radio" name="anti2" value="false" checked> Particle     <br>
+    <input type="radio" name="anti2" value="true"         > Antiparticle
+  </td>
+</tr>
+
+<tr>
+
+  <td align="center">
+    Charge:<br><br>
+    <select name="Charge1" size="5">
+      <option value="-2"        >-2</option>
+      <option value="-1"        >-1</option>
+      <option value="0" selected> 0</option>
+      <option value="1"         >+1</option>
+      <option value="2"         >+2</option>
+    </select>
+  </td>
+
+  <td align="center">
+    Charge:<br><br>
+    <select name="Charge2" size="5">
+      <option value="-2"        >-2</option>
+      <option value="-1"        >-1</option>
+      <option value="0" selected> 0</option>
+      <option value="1"         >+1</option>
+      <option value="2"         >+2</option>
+    </select>
+  </td>
+
+</tr>
+
+</table>
+
+<p>Please note: the calculation can take up to 30 sec.</p>
+
+<p>PDG data will be shown for the following reactions: pp, pn, np, p&#773;p, p&#773;n, &Lambda;p, &Sigma;<sup>-</sup>p, &pi;<sup>&plusmn;</sup>p, K<sup>&plusmn;</sup>n, K<sup>&plusmn;</sup>p.</p>
+
+<p><input type="submit" value="Submit"></p>
+</form>
+</body>
+</html>

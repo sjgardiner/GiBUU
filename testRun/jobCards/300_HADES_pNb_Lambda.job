@@ -1,0 +1,90 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+!  HADES: p + Nb @ 3.5 GeV
+!------------------------------------------------------------------------------
+! * real particles
+! * no potentials in propagation
+!------------------------------------------------------------------------------
+! used for p + Nb -> Lambda X @ 3.5 GeV
+!------------------------------------------------------------------------------
+
+!******************************************************************************
+!       General Input :
+!******************************************************************************
+
+! file: code/inputOutput/input.f90
+&input
+      eventtype    = 300        ! hadron+nucleus
+      numEnsembles = 1000       ! number of ensembles; NEVER GO BELOW !
+      numTimeSteps = 200        ! number of time steps
+      delta_T      = 0.2        ! time step size
+      num_runs_SameEnergy = 1   ! number of runs
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_to_input = "~/GiBUU/buuinput/"
+    version = 2023
+/
+
+! file: code/density/nucleus.f90
+&target
+      Z = 41, A = 93
+/
+
+! file: code/density/density.f90
+&initDensity
+      densitySwitch = 1         ! 1=dynamic, 2=analytic, 0=none
+/
+
+! file: code/density/pauliBlocking.f90
+&initPauli
+      pauliSwitch = 1           ! 1=dynamic, 2=analytic, 0=nome
+/
+
+! file: code/numerics/random.f90
+&initRandom
+      Seed = 45678,             ! seed for the random number
+/
+
+
+!******************************************************************************
+!       Input specific for hadron-induced reactions
+!******************************************************************************
+
+! file: code/init/initHadron.f90
+&hadron
+      ekin_lab        = 3.5     ! beam energy (GeV)
+      impactParameter = -100.   ! negative value -- random choice
+      particleId      = 1,
+      particleCharge  = 1,
+      iniType         = 0,
+      zChoice         = 2,
+      delta           = 1.,
+      deltaZ          = 1.
+/
+
+! file: code/analysis/HeavyIonAnalysis.f90
+&HICanalysis_Input
+      flag_outputDetailed = .false.
+      flag_outputPert     = .false.
+      flag_outputReal     = .true.
+/
+
+!******************************************************************************
+!       Potentials
+!******************************************************************************
+
+! file code/propagation/propagation.f90
+&propagation
+      Mode = 1
+      UseHadronic        = .false.
+/
+
+!******************************************************************************
+!       Collision Term :
+!******************************************************************************
+
+! file code/collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&Pythia
+      PARP(91) = 0.44           ! width intrinsic kT
+/

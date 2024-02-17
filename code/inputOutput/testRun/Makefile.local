@@ -1,0 +1,3 @@
+SUBDIREXCL :=
+FILEEXCL :=
+EXEFILE := readParticleVector.f90 readParticleVectorBinary.f90

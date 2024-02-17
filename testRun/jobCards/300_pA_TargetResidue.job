@@ -1,0 +1,121 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! Sample jobcard for proton-induced reactions using REAL particles.
+! Includes settings for faster calculations
+!      (densitySwitch   = 2, pauliSwitch     = 2,   coulombFlag     = F)
+! and for the determination of parameters of the nuclear residue
+!      (DetermineResidue=T).
+! The output for the nuclear residue is in the file TargetResidue.dat.
+! See file  code/analysis/sourceAnalysis/residue.f90 for detail.
+! Variants of this job-card were used in calculation of the neutron production
+! in pA collisions in http://inspirehep.net/record/1710338
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: code/inputOutput/input.f90
+&input
+      eventtype       =         300 ! hadron induced
+      numEnsembles    =         2000
+      numTimeSteps    =         500
+      delta_T         =        0.2
+      num_runs_SameEnergy=      1 ! number of runs per energy
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+
+! file: code/init/initHadron.f90
+&hadron
+      impactParameter =   6.5 ! [fm] (<0: Monte-Carlo choice)
+      bRaiseFlag      = T     ! if true, increase impact parameter b
+      deltaB          = 0.5    ! value to increase b with
+      nRunsPerB       = 1     ! number of runs per b value
+      particleId      =     1 ! projectile: id
+      antiParticle    = F     ! projectile: antiparticle flag
+      particleCharge  =     1 ! projectile: charge
+      ekin_lab        =  1.27103689421431 ! projectile: kinetic energy [GeV]
+ /
+
+! file: code/density/nucleus.f90
+&target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+!      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+!      Z= 20, A= 40 ! Ca
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 41, A= 93, densitySwitch_Static=8 ! Nb
+!      Z= 54, A=131 ! Xe
+      Z= 82, A=208 ! Pb
+      densitySwitch_static = 8
+/
+
+
+! file: code/numerics/random.f90
+&initRandom
+      SEED=11111                ! Seed for the random number
+/
+
+! file: code/analysis/HeavyIonAnalysis.f90
+&HICanalysis_Input
+      flag_outputPert = F
+      flag_outputReal = T
+/
+
+!     file: code/collisions/history.f90
+&history
+      IncGeneration_Elastic = F  ! Remove history change for elastic collisions   
+/
+
+! file: code/analysis/sourceAnalysis/residue.f90
+&residue_Input
+      DetermineResidue=T
+/
+
+! file: code/rmf/RMF.f90
+&RMF_input
+      RMF_flag     = T,         ! if .true. then use relativistic mean field
+      grad_flag    = T,
+      lorentz_flag = T,
+      N_set        = 2,         ! number of the parameter set
+      fact_pbar    = 0.22,
+      fact_hyp     = 0.666666,
+      fact_antihyp = 0.666666,
+      fact_Xi      = 0.333333,
+      fact_antiXi  = 0.333333,
+      fact_kaon    = 0.333333,
+      /
+
+
+! file: code/density/density.f90
+&initDensity
+      densitySwitch   = 2 ! 2: static density
+/
+
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 2 ! 0: no Pauli blocking, 1: dynamic, 2: analytic
+/
+
+
+! file: code/potential/coulomb/coulomb.f90
+ &coulomb
+      coulombFlag     = F
+/
+
+! file: code/collisions/collisionTerm.f90
+&collisionterm
+      energyCheck        =  0.100
+/

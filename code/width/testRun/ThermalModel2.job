@@ -1,0 +1,64 @@
+!-------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for a thermal model calculation
+!-----------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!-----------------------------------------------------------------------
+
+! file: code/inputOutput/input.f90
+&input
+   path_To_Input   = '~/GiBUU/buuinput'
+/
+
+! file: code/width/testRun/ThermalModel2.f90
+&ThermalModel2
+
+!      modus=0; in_T = 0.002; in_muB = 0.975; in_lambda = 1.0
+!      modus=1; in_eps=0.16047200052131286; in_rhoB=0.16704494846266002; in_rho=0.16704494846266002; in_T=0.020; in_muB=0.9
+
+!     modus=3; in_eps=0.16364631859289827; in_rhoB=0.16907810375540261; in_rho=0.16907810375540261; in_T=0.020; in_muB=0.95
+
+! only N:
+
+!      modus=0; in_T = 0.04; in_muB = 0.975; in_lambda = 1.0
+!      modus=1; in_eps = 0.40613408037825532; in_rhoB = 0.39929413946774561; in_rho = 0.39929413946774561; in_T=0.05; in_muB=0.85
+
+!      modus=0; in_T = 0.004; in_muB = 0.975; in_lambda = 1.0
+!      modus=1; in_eps = 0.16258848029393891; in_rhoB = 0.16907810375540261; in_rho = 0.16907810375540261; in_T=0.01; in_muB=0.97
+
+
+! only N & R:
+
+!      modus=0; in_T = 0.04; in_muB = 0.975; in_lambda = 1.0
+!      modus=1; in_eps = 0.41904974220947144; in_rhoB = 0.40989240614550632; in_rho = 0.40989240614550632; in_T=0.01; in_muB=1.0
+
+! all:
+
+!      modus=0; in_T=0.04; in_muB=1.0; in_lambda=2.0
+
+!      modus=0; in_T = 0.04; in_muB = 0.975; in_lambda = 1.0
+!      modus=3; in_eps =  0.41916185641252318      ; in_rhoB =  0.40989240614550632      ; in_rho =  0.41041407179908723      ; in_T=   0.010 ; in_muB =  1.0      ; in_lambda =   1.0000000000000000
+!      modus=1; in_eps = 0.41916185641252318; in_rhoB = 0.40989240614550632; in_rho = 0.41041407179908723; in_T=0.01; in_muB=1.0; in_lambda=1.0
+!      modus=0; in_T = 0.004; in_muB = 0.975; in_lambda = 1.0
+!      modus=3; in_eps = 0.16258848029393894; in_rhoB = 0.16907810375540264; in_rho = 0.16907810375540264; in_T=0.01; in_muB=1.0
+
+! other:
+
+!      modus=2; in_eps = 8.4866200116653426E-003; in_rhoB=8.3337389370069584E-003; in_rho=8.8554832983988030E-003; in_T=0.05; in_muB=0.95
+!     modus=1; in_eps = 8.50E-003; in_rho=9E-003; in_rhoB=8.33E-003; in_T = 0.010; in_muB = 0.95
+
+
+!      modus=0; in_T = 0.120; in_muB = 0.3; in_lambda = 1.0
+!      modus=3; in_eps = 6.4331481280515315E-002; in_rho=9.3072912877419964E-002; in_rhoB=1.7229953763930030E-002; in_T = 0.10; in_muB = 0.5
+
+      in_T=0.020; in_muB=1.0
+!     modus=12; FileNameHydro="~/runGiBUU/NewHades_b0/hydro.Tmunu_055.dat"
+      modus=12; FileNameHydro="~/runGiBUU/NewHades_b0_onlyPart/hydro.Tmunu_105.dat"
+!     modus=10; FileNameHydro="./T100.dat"
+!      modus= 99
+/
+
+! file: code/database/particleProperties.f90
+&initDatabase
+   FileNameDecayChannels = 'DecayChannels.noPhotonicMeson.dat'
+/

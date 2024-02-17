@@ -1,0 +1,17 @@
+$RMF_input
+  RMF_flag = .true.     ! if .true. then use relativistic mean field
+  N_set    = 2         ! Number of the parameter set
+$end
+
+$input
+  numEnsembles= 300   ! number of ensembles
+  eventtype   = 3    ! 2=PionA, 3=photon A
+  numTimeSteps= 300  ! number of time steps
+  delta_T     = 0.25 ! time step size
+  fullensemble=.false.
+  num_runs_SameEnergy=10
+  num_Energies=5
+  FinalCoulombCorrection=.false.
+  length_perturbative=1000
+  path_to_input = '~/GiBUU/buuinput'
+$end

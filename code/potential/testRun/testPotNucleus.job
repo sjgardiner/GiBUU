@@ -1,0 +1,63 @@
+!-------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for plotting potentials with testPotMain.f90
+!-----------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!-----------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype           =      -1 ! ***unknown***
+      numEnsembles        =    5000
+!            numEnsembles        =    500
+!      numEnsembles        =    10
+
+      path_To_Input   = '~/GiBUU/buuinput'
+
+/
+
+! file: ./density/nucleus.f90
+$target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  2, A=  4
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+!      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 13, A= 27 ! Al
+!      Z= 16, A= 32 ! S
+!      Z= 18, A=37 ! mixture KCl
+!      Z= 18, A=40
+!      Z= 26, A= 56 ! Fe
+      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 50, A=119 ! Sn
+!      Z= 54, A=131 ! Xe
+!      Z= 73, A=181 ! Ta
+!      Z= 82, A=208 ! Pb
+$end
+
+! file: ./potential/coulomb/coulomb.f90
+&coulomb
+  coulombFlag = T
+/
+
+! file: ./potential/baryonPotential.f90
+&baryonPotential
+      EQS_TYPE        = 5
+  ! *  1 = soft,   momentum dependent, lambda = 2.130 (Teis PhD, K = 215 MeV)
+  ! *  2 = hard,   momentum dependent, lambda = 2.126 (Teis PhD, K = 380 MeV)
+  ! *  3 = soft,   momentum independent               (Teis PhD, K = 215 MeV)
+  ! *  4 = hard,   momentum independent               (Teis PhD, K = 380 MeV)
+  ! *  5 = medium, momentum dependent, lambda = 2.130 (Teis PhD, K = 290 MeV)
+
+      symmetryPotFlag = 0
+  ! * 0 = none (default)
+  ! * 1 = linear (strength given by 'dsymm')
+  ! * 2 = stiffer, Esym=Esym_rho_0*U^gamma=31.*U^gamma, gamma=2
+  ! * 3 = stiff, linear increasing Esym=Esym_rho_0*U=31.*U
+  ! * 4 = soft, U_c=3, can give negative Esym=Esym_rho_0*U*(U_c-U)/(U_c-1)     
+
+/

@@ -1,0 +1,23 @@
+$input
+      eventtype   = 13          ! HiPhoton
+      numEnsembles= 1        ! number of ensembles
+      numTimeSteps= 0           ! number of time steps
+
+      length_perturbative = 50
+
+!      num_runs_SameEnergy=10000 ! number of runs per energy
+!      num_runs_SameEnergy= 1    ! number of runs per energy
+      num_runs_SameEnergy= 10    ! number of runs per energy
+
+      path_To_Input = '~/GiBUU/buuinput'
+
+      DoPrLevel(1) = .FALSE.
+      DoPrLevel(2) = .FALSE.
+
+!      printParticleVectors=.true.
+$end
+
+
+$initRandom
+      SEED=45678                ! Seed for the random number
+$end

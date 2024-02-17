@@ -1,0 +1,31 @@
+&input
+  path_To_Input="~/GiBUU/buuinput"
+/
+
+&low_photo_induced
+  energy_gamma=0.4
+/
+
+&DileptonAnalysis
+  DeltaDalitz   = 2   ! 1 = Wolf, 2 = Krivoruchenko (default), 3 = HadronTensor, 4 = Ernst
+  DeltaDalitzFF = 1   ! 1 = constant (default), 2 = Dipole, 3 = MAID 2005, 4 = simple VMD, 5 = Wan/Iachello, 6 = Ramalho/Pena
+/
+
+&initDatabase
+  rho_dilep = T
+/
+
+! file: code/database/particleProperties.f90
+&ModifyParticles
+  stabilityFlag(101) = 6   ! Let pi^0 decay
+/
+
+! file: code/collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+  MDCY(102,1) = 1   ! pi^0 unstable in Pythia
+/
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=45678                ! Seed for the random number
+/

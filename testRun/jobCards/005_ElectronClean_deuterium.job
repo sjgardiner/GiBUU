@@ -1,0 +1,124 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for electron induced interactions on deuterium
+! (using neutrino init) with fixed beam energy
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype       =           5 ! neutrino interactions
+      numEnsembles    =        1000
+      numTimeSteps    =         200
+      delta_T         =       0.025 ! time step size [fm]
+      freezeRealParticles  = T
+!      localEnsemble   = T
+!      printParticleVectors = T
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: code/density/nucleus.f90
+&target
+      Z =  1, A =  2
+/
+
+! file: code/potential/baryonPotential.f90
+&baryonPotential
+      EQS_Type=0   ! no nucleon potential
+!      EQS_Type=7   ! Two body potential for deuterium
+/
+
+! file: code/init/neutrino/neutrinoParms.f90
+&nl_neweN
+      new_eN = T
+!      new_eNres = T
+/
+
+! file: code/init/deuterium.f90
+&deuteriumFermi
+      waveFunction_switch=2     ! 1=Bonn, 2=Argonne
+/
+
+! file: code/density/density.f90
+&initDensity
+      densitySwitch = 2         ! 2=analytic
+/
+
+! file: code/density/pauliBlocking.f90
+&initPauli
+      pauliSwitch = 2           ! 2=analytic
+/
+
+! file: code/init/neutrino/initNeutrino.f90
+&neutrino_induced
+      process_ID      =  1      ! 1:EM, 2:CC, 3:NC, -2:antiCC, -3:antiNC
+      flavor_ID       =  1      ! 1:electron, 2:muon, 3:tau
+
+      nuXsectionMode  =  6
+      nuExp           =  0
+
+!   subprocesses to take into account:
+      includeQE       = T
+      includeDELTA    = T
+      includeRES      = T
+      include1pi      = T
+      includeDIS      = T
+      include2p2hQE   = F
+      include2pi      = T
+/
+
+! file: code/init/neutrino/esample.f90
+&nl_fluxcuts
+      Enu_loawer_cut =  0.0
+      Enu_upper_cut = 20.0
+      energylimit_for_Qsrec = T   ! using fluxcuts also in Q^2 reconstr.
+/
+
+! file: code/init/neutrino/neutrinoXsection.f90
+&nl_neutrinoxsection
+      invariantMasscut=20.      ! mass cuts on Wrec
+      invariantMassCut_BG = 20. ! mass cuts on Wrec
+/
+
+! file: code/init/neutrino/neutrinoSigma.f90
+&nl_SigmaMC
+      MC_xmax=2.0  ! to get QE peak in nuclei, where Bjorken_x larger than 1
+      enu=4.247
+/
+
+! file: code/propagation/propagation.f90
+&propagation
+      RungeKuttaOrder=2         ! 2=second order Runge-Kutta
+/
+
+! file: code/width/baryonWidthMedium.f90
+&width_Baryon
+      mediumSwitch = F
+      mediumSwitch_Delta = F ! Use Oset broadening of the Delta
+                             ! (only relevant for mediumSwitch_coll=.false.)
+      mediumSwitch_coll = F  ! Use collisional broadening of all resonances
+/
+
+! file: code/collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91)=0.44
+/
+
+! file: code/numerics/random.f90
+&initRandom
+!      Seed = 45678
+/
+
+! file: code/analysis/EventOutputAnalysis.f90
+&EventOutput
+      WritePerturbativeParticles = T
+      WriteRealParticles = F
+      EventFormat = 1 ! 1=LesHouches(default), 2=Oscar, 3=Shanghai, 4=ROOT
+/

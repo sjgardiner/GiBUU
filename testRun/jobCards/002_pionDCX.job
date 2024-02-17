@@ -1,0 +1,115 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for pion induced reactions: Double charge exchange
+! pion induced reactions for E_kin(pion) <0.2 GeV
+!------------------------------------------------------------------------------
+! please visit the GiBUU homepage for further information:
+! https://gibuu.hepforge.org
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype       =           2 ! Pion induced (low energy)
+      numEnsembles    =         200
+      numTimeSteps    =         200
+      delta_T         =        0.25 ! time step size [fm]
+      num_runs_SameEnergy=        1 ! number of runs per energy
+
+      freezeRealParticles = T
+
+!      DoPrLevel(1) = .FALSE. ! set this for production runs
+!      DoPrLevel(2) = .FALSE. ! set this for production runs
+
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: ./init/initPion.f90
+&pionNucleus
+      UseCoulomb      = T       ! coulomb correction of incoming state
+      CoulombDistance =  400.0  ! distance for the coulomb correction (=infty)
+      distance        =    7.8  ! distance of pions to nucleus
+      impact_parameter= -0.100  ! <0: impact-parameter integration
+      charge          =     -1  ! charge of pions
+      numberPions     =    100  ! number of pions per ensemble
+      ekin_lab        =  0.180  ! kinetic energy
+      delta_ekin_lab  =  0.010  ! step size
+      /
+
+
+! file: ./density/nucleus.f90
+&target
+!      fermiMotion = .FALSE.
+!      Z=  1, A=  1 ! proton,neutron, deuterium
+!      Z=  4, A=  9, densitySwitch_Static=4 ! Be
+!      Z=  6, A= 12, densitySwitch_Static=4 ! C
+!      Z=  6, A= 12 ! C
+!      Z=  7, A= 14 ! N
+!      Z= 10, A= 20 ! Ne
+!      Z= 16, A= 32 ! S
+      Z= 20, A= 40 ! Ca
+!      Z= 26, A= 56 ! Fe
+!      Z= 29, A= 64 ! Cu
+!      Z= 36, A= 84 ! Kr
+!      Z= 54, A=131 ! Xe
+!      Z= 82, A=208 ! Pb
+/
+
+
+! file: ./database/particleProperties.f90
+&initDatabase
+      propagationSwitch = 0     ! 0=all resonances with more than 1 star
+/
+
+! file: ./potential/baryonPotential.f90
+&baryonPotential
+      symmetryPotFlag = 1
+/
+
+! file: ./potential/coulomb/coulomb.f90
+&coulomb
+      coulombFlag      = T
+/
+! file: ./density/density.f90
+&initDensity
+      densitySwitch   = 2       ! 2: static density
+/
+
+! file: ./density/pauliBlocking.f90
+&initPauli
+      pauliSwitch     = 2       ! 0: no Pauli blocking, 1: dynamic, 2: analytic
+/
+
+! file: ./propagation/propagation.f90
+&Propagation
+      RungeKuttaOrder = 2
+/
+
+! file: ./width/baryonWidthMedium.f90
+&width_Baryon
+      mediumSwitch       = T    ! use in medium width for all baryons
+      mediumSwitch_Delta = T    ! use in medium width for Delta
+/
+
+
+
+! file: ./numerics/random.f90
+&initRandom
+      SEED=230899               ! Seed for the random number
+/
+
+! file: ./collisions/collisionTerm.f90
+&collisionterm
+      energyCheck     =  0.030
+/
+
+! file: ./collisions/twoBodyReactions/master_2Body.f90
+&master_2body
+!      baryonBaryonScattering  = F
+!      baryonMesonScattering   = F
+      mesonMesonScattering    = F
+/
+
+! file: ./collisions/insertion.f90
+&insertion
+      minimumEnergy   =  0.070
+/

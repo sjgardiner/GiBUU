@@ -1,0 +1,864 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021) (preloaded format=pdflatex 2022.3.1)  14 JAN 2024 14:39
+entering extended mode
+ \write18 enabled.
+ %&-line parsing enabled.
+**namelists.tex
+(./namelists.tex
+LaTeX2e <2021-11-15> patch level 1
+L3 programming layer <2022-02-24>
+(/usr/local/texlive/2021/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2021/10/04 v1.4n Standard LaTeX document class
+(/usr/local/texlive/2021/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2021/10/04 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count185
+\c@section=\count186
+\c@subsection=\count187
+\c@subsubsection=\count188
+\c@paragraph=\count189
+\c@subparagraph=\count190
+\c@figure=\count191
+\c@table=\count192
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen138
+)
+(/usr/local/texlive/2021/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(/usr/local/texlive/2021/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks16
+)
+(/usr/local/texlive/2021/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(/usr/local/texlive/2021/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
+))
+\Gm@cnth=\count193
+\Gm@cntv=\count194
+\c@Gm@tempcnt=\count195
+\Gm@bindingoffset=\dimen139
+\Gm@wd@mp=\dimen140
+\Gm@odd@mp=\dimen141
+\Gm@even@mp=\dimen142
+\Gm@layoutwidth=\dimen143
+\Gm@layoutheight=\dimen144
+\Gm@layouthoffset=\dimen145
+\Gm@layoutvoffset=\dimen146
+\Gm@dimlist=\toks17
+)
+(/usr/local/texlive/2021/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen147
+\lightrulewidth=\dimen148
+\cmidrulewidth=\dimen149
+\belowrulesep=\dimen150
+\belowbottomsep=\dimen151
+\aboverulesep=\dimen152
+\abovetopsep=\dimen153
+\cmidrulesep=\dimen154
+\cmidrulekern=\dimen155
+\defaultaddspace=\dimen156
+\@cmidla=\count196
+\@cmidlb=\count197
+\@aboverulesep=\dimen157
+\@belowrulesep=\dimen158
+\@thisruleclass=\count198
+\@lastruleclass=\count199
+\@thisrulewidth=\dimen159
+)
+(/usr/local/texlive/2021/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
+\LTleft=\skip49
+\LTright=\skip50
+\LTpre=\skip51
+\LTpost=\skip52
+\LTchunksize=\count266
+\LTcapwidth=\dimen160
+\LT@head=\box50
+\LT@firsthead=\box51
+\LT@foot=\box52
+\LT@lastfoot=\box53
+\LT@gbox=\box54
+\LT@cols=\count267
+\LT@rows=\count268
+\c@LT@tables=\count269
+\c@LT@chunks=\count270
+\LT@p@ftn=\toks18
+)
+(/usr/local/texlive/2021/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip53
+\enit@outerparindent=\dimen161
+\enit@toks=\toks19
+\enit@inbox=\box55
+\enit@count@id=\count271
+\enitdp@description=\count272
+)
+(/usr/local/texlive/2021/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2022-02-07 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count273
+\l__pdf_internal_box=\box56
+)
+(./namelists.aux)
+\openout1 = `namelists.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: landscape 
+* h-part:(L,W,R)=(50.58878pt, 743.8693pt, 50.58878pt)
+* v-part:(T,H,B)=(50.58878pt, 496.33032pt, 50.58878pt)
+* \paperwidth=845.04684pt
+* \paperheight=597.50787pt
+* \textwidth=743.8693pt
+* \textheight=496.33032pt
+* \oddsidemargin=-21.68121pt
+* \evensidemargin=-21.68121pt
+* \topmargin=-58.68121pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 48--48
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 48--48
+\OT1/cmr/m/n/10 di-men-
+ []
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 64.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 64.
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--68
+\OT1/cmr/m/n/10 cos(theta))**exponent*(pole-sqrt(s)/pole) Only used if pi-o-nNu
+-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 70--70
+\OT1/cmr/m/n/10 cos(theta))**exponent*(pole-sqrt(s)/pole) Only used if pi-o-nNu
+-
+ []
+
+[1
+
+{/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+[2]
+Underfull \hbox (badness 1112) in paragraph at lines 134--134
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Overfull \hbox (34.80585pt too wide) in paragraph at lines 134--134
+\OT1/cmr/m/n/10 sion(Delta:F37[]1950) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 134--134
+[]\OT1/cmr/m/n/10 Squared ma-trix el-e-ments M**2/16pi for N N $\OMS/cmsy/m/n/1
+0 !$ \OT1/cmr/m/n/10 N R. See
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 136--136
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Overfull \hbox (34.80585pt too wide) in paragraph at lines 136--136
+\OT1/cmr/m/n/10 sion(Delta:F37[]1950) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--136
+[]\OT1/cmr/m/n/10 Squared ma-trix el-e-ments M**2/16pi for N N $\OMS/cmsy/m/n/1
+0 !$ \OT1/cmr/m/n/10 Delta R. See
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 236--236
+[]\OT1/cmr/m/n/10 number of it-er-a-tions, if den-sity is read-justed (cf.
+ []
+
+[4] [5] [6]
+Overfull \hbox (11.20575pt too wide) in paragraph at lines 284--284
+[]\OT1/cmr/m/n/10 character(1000) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 284--284
+[]\OT1/cmr/m/n/10 if given, but does not con-tain '/': de-fault is
+ []
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 324--324
+[]\OT1/cmr/m/n/10 Enable the pro-duc-tion of BB $\OMS/cmsy/m/n/10 !$ \OT1/cmr/m
+/n/10 B Hy-peron Kaon chan-nels.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 324--324
+\OT1/cmr/m/n/10 B=Nucleon^0,1,Delta^-,0.+,++; Hyperon=Lambda^0,Sigma^0,-,+;
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 328--328
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+[8]
+Underfull \hbox (badness 1112) in paragraph at lines 354--354
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 356--356
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
+[]\OT1/cmr/m/n/10 (/ .false.,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
+\OT1/cmr/m/n/10 .false.,
+ []
+
+[10] [11] [12] [13] [14]
+Underfull \hbox (badness 3291) in paragraph at lines 648--648
+\OT1/cmr/m/n/10 <pre> (At-Width) = 1.0 ... (At+Width) = 0.0 with At = min-
+ []
+
+[15] [16]
+Underfull \hbox (badness 1546) in paragraph at lines 770--770
+[]\OT1/cmr/m/n/10 5 = Wan/Iachello, Int. J. Mod. Phys. A 20 (2005) 1846,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 770--770
+[]\OT1/cmr/m/n/10 6 = Ra-malho/Pena, Phys.Rev. D85 (2012) 113014,
+ []
+
+
+Overfull \hbox (31.76135pt too wide) in paragraph at lines 796--796
+[]\OT1/cmr/m/n/10 character(len=1000) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 796--796
+[]\OT1/cmr/m/n/10 if given, but does not con-tain '/': de-fault is
+ []
+
+
+Overfull \hbox (31.76135pt too wide) in paragraph at lines 798--798
+[]\OT1/cmr/m/n/10 character(len=1000) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 798--798
+[]\OT1/cmr/m/n/10 if given, but does not con-tain '/': de-fault is
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 806--806
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 806--806
+[]\OT1/cmr/m/n/10 (/ 0.150,
+ []
+
+[17] [18] [19] [20]
+Underfull \hbox (badness 10000) in paragraph at lines 832--832
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 834--834
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Overfull \hbox (13.20578pt too wide) in paragraph at lines 834--834
+[]\OT1/cmr/m/n/10 (/.false.,.false./) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 836--836
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+[21] [22]
+Overfull \hbox (8.42796pt too wide) in paragraph at lines 930--930
+[]\OT1/cmr/m/n/10 character*1000 
+ []
+
+[23] [24]
+Underfull \hbox (badness 1178) in paragraph at lines 1054--1054
+[]\OT1/cmr/m/n/10 smaller 0: Im-pact pa-ram-e-ter will be cho-sen ran-domly in 
+the in-ter-val
+ []
+
+
+Underfull \hbox (badness 1635) in paragraph at lines 1060--1060
+[]\OT1/cmr/m/n/10 number of sub-se-quent runs per im-pact pa-ram-e-ter (rel-e-v
+ant if bRaise-
+ []
+
+[25] [26] [27] [28]
+Underfull \hbox (badness 1112) in paragraph at lines 1218--1218
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1218--1218
+[]\OT1/cmr/m/n/10 (/ -0.75,
+ []
+
+
+Underfull \hbox (badness 2150) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 -0.45, -0.15,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 0.15, 0.45,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 0.75, 1.05,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 1.35, -99.9,
+ []
+
+
+Underfull \hbox (badness 2150) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 -99.9, -99.9,
+ []
+
+
+Underfull \hbox (badness 2150) in paragraph at lines 1218--1218
+\OT1/cmr/m/n/10 -99.9, -99.9,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1240--1240
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1240--1240
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1240--1240
+[]\OT1/cmr/m/n/10 (/ .false.,
+ []
+
+[29] [30]
+Underfull \hbox (badness 10000) in paragraph at lines 1268--1268
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1270--1270
+[]\OT1/cmr/m/n/10 logical,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1270--1270
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Overfull \hbox (6.56686pt too wide) in paragraph at lines 1270--1270
+\OT1/cmr/m/n/10 sion(2:nres+1) 
+ []
+
+[31] [32]
+Underfull \hbox (badness 4686) in paragraph at lines 1390--1390
+\OT1/cmr/m/n/10 If equal-WeightsMode==2, then the per-weights are given by equa
+l-
+ []
+
+[33] [34] [35] [36] [37]
+Overfull \hbox (11.20575pt too wide) in paragraph at lines 1554--1554
+[]\OT1/cmr/m/n/10 character(1000) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1554--1554
+[]\OT1/cmr/m/n/10 if given, but does not con-tain '/': de-fault is
+ []
+
+[38]
+Underfull \hbox (badness 1112) in paragraph at lines 1578--1578
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Overfull \hbox (4.76135pt too wide) in paragraph at lines 1578--1578
+[]\OT1/cmr/m/n/10 (/12.,12.,12./) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1580--1580
+[]\OT1/cmr/m/n/10 integer, di-
+ []
+
+[39]
+Underfull \hbox (badness 10000) in paragraph at lines 1656--1656
+[]\OT1/cmr/m/n/10 If set to .true., the Fermi mo-men-tum will de-ter-mined by
+ []
+
+[40] [41] [42]
+Overfull \hbox (11.20575pt too wide) in paragraph at lines 1752--1752
+[]\OT1/cmr/m/n/10 character(1000) 
+ []
+
+
+Overfull \hbox (9.76137pt too wide) in paragraph at lines 1752--1752
+[]\OT1/cmr/m/n/10 '../../buuinput' 
+ []
+
+
+Underfull \hbox (badness 1796) in paragraph at lines 1808--1808
+[]\OT1/cmr/m/n/10 integer, pri-
+ []
+
+[43] [44] [45]
+Underfull \hbox (badness 1112) in paragraph at lines 1906--1906
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1906--1906
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1908--1908
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1908--1908
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1910--1910
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1910--1910
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1912--1912
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1912--1912
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1914--1914
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1914--1914
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1916--1916
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1916--1916
+[]\OT1/cmr/m/n/10 (/0.0, 0.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 1918--1918
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1918--1918
+[]\OT1/cmr/m/n/10 (/0.0, 1.0,
+ []
+
+[46] [47] [48] [49] [50]
+Underfull \hbox (badness 1112) in paragraph at lines 2094--2094
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+[51]
+Underfull \hbox (badness 1112) in paragraph at lines 2194--2194
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+[52] [53] [54] [55]
+Underfull \hbox (badness 10000) in paragraph at lines 2344--2344
+[]\OT1/cmr/m/n/10 real,
+ []
+
+
+Overfull \hbox (51.81697pt too wide) in paragraph at lines 2344--2344
+\OT1/cmr/m/n/10 dimension(1:pion+nMes-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2346--2346
+[]\OT1/cmr/m/n/10 real,
+ []
+
+
+Overfull \hbox (51.81697pt too wide) in paragraph at lines 2346--2346
+\OT1/cmr/m/n/10 dimension(1:pion+nMes-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2348--2348
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Overfull \hbox (51.81697pt too wide) in paragraph at lines 2348--2348
+\OT1/cmr/m/n/10 dimension(1:pion+nMes-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2350--2350
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Overfull \hbox (51.81697pt too wide) in paragraph at lines 2350--2350
+\OT1/cmr/m/n/10 dimension(1:pion+nMes-
+ []
+
+[56]
+Overfull \hbox (11.20575pt too wide) in paragraph at lines 2398--2398
+[]\OT1/cmr/m/n/10 character(1000) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2398--2398
+[]\OT1/cmr/m/n/10 if given, but does not con-tain '/': de-fault is
+ []
+
+
+Underfull \hbox (badness 4686) in paragraph at lines 2402--2402
+\OT1/cmr/m/n/10 If equal-WeightsMode==2, then the per-weights are given by equa
+l-
+ []
+
+[57] [58] [59] [60]
+Underfull \hbox (badness 1472) in paragraph at lines 2458--2458
+[]\OT1/cmr/m/n/10 kineticEnergyDetectionThreshold only lep-ton ki-netic en-er-g
+ies above this
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2478--2478
+\OT1/cmr/m/n/10 see files neu-trino[]0pions.dat, neu-trino[]0pions[]QE.dat, neu
+-
+ []
+
+
+Overfull \hbox (31.76135pt too wide) in paragraph at lines 2494--2494
+[]\OT1/cmr/m/n/10 character(len=1000) 
+ []
+
+[61] [62] [63] [64] [65]
+Underfull \hbox (badness 2671) in paragraph at lines 2736--2736
+\OT1/cmr/m/n/10 minimum and max-i-mum en-er-gies for the uni-form neu-trino flu
+x (nu-
+ []
+
+
+Underfull \hbox (badness 2671) in paragraph at lines 2738--2738
+\OT1/cmr/m/n/10 minimum and max-i-mum en-er-gies for the uni-form neu-trino flu
+x (nu-
+ []
+
+[66]
+Underfull \hbox (badness 1112) in paragraph at lines 2796--2796
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2796--2796
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2798--2798
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2798--2798
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2800--2800
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2800--2800
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2802--2802
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2802--2802
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2804--2804
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2804--2804
+[]\OT1/cmr/m/n/10 (/1.0, 1.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2806--2806
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2806--2806
+[]\OT1/cmr/m/n/10 (/0.0, 0.0,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 2808--2808
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2808--2808
+[]\OT1/cmr/m/n/10 (/0.0, 1.0,
+ []
+
+[67] [68] [69] [70] [71] [72] [73]
+Underfull \hbox (badness 4505) in paragraph at lines 3100--3100
+[]\OT1/cmr/m/n/10 3 : 6$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 C(12), 8$\OMS/cmsy/m
+/n/10 !$\OT1/cmr/m/n/10 O(16),O(18), 13$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 Al(2
+7), 20$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 Ca(40),Ca(44),
+ []
+
+[74]
+Underfull \hbox (badness 10000) in paragraph at lines 3174--3174
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3174--3174
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3176--3176
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3176--3176
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3178--3178
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3178--3178
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3180--3180
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3180--3180
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3182--3182
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3184--3184
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3186--3186
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3188--3188
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3190--3190
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3192--3192
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3194--3194
+[]\OT1/cmr/m/n/10 integer,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3194--3194
+\OT1/cmr/m/n/10 di-men-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3194--3194
+\OT1/cmr/m/n/10 sion(500,
+ []
+
+[75] [76] [77] [78] [79] [80]
+Underfull \hbox (badness 4505) in paragraph at lines 3420--3420
+[]\OT1/cmr/m/n/10 3 : 6$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 C(12), 8$\OMS/cmsy/m
+/n/10 !$\OT1/cmr/m/n/10 O(16),O(18), 13$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 Al(2
+7), 20$\OMS/cmsy/m/n/10 !$\OT1/cmr/m/n/10 Ca(40),Ca(44),
+ []
+
+[81]
+Underfull \hbox (badness 1112) in paragraph at lines 3446--3446
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 3448--3448
+[]\OT1/cmr/m/n/10 real, di-men-
+ []
+
+[82] [83] [84] [85] [86] (./namelists.aux) ) 
+Here is how much of TeX's memory you used:
+ 1662 strings out of 478276
+ 26921 string characters out of 5846505
+ 391347 words of memory out of 5000000
+ 19921 multiletter control sequences out of 15000+600000
+ 470508 words of font info for 32 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 55i,6n,62p,2682b,310s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2021/texmf-dist
+/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/local/texlive/2021/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2021/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2021/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2021/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2021/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/ty
+pe1/public/cm-super/sfrm1000.pfb>
+Output written on namelists.pdf (86 pages, 269294 bytes).
+PDF statistics:
+ 314 PDF objects out of 1000 (max. 8388607)
+ 211 compressed objects within 3 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

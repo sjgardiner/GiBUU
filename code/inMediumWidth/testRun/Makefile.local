@@ -1,0 +1,3 @@
+SUBDIREXCL :=
+FILEEXCL := testInMediumRealPart.f90 testInMediumWidth.f90 testInMediumWidth_mesons.f90 tabulateGammaCollRho.f90 tabulateImagPart_Bar.f90 tabulateImagPart_Mes.f90 tabulateRealPart.f90 plotInMediumWidth_mesons.f90
+EXEFILE := tabulateGammaCollRho.f90 tabulateImagPart_Bar.f90 tabulateImagPart_Mes.f90 plotInMediumWidth_mesons.f90 plotInMediumWidth_rho.f90

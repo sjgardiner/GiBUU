@@ -1,0 +1,164 @@
+!--------------------------------------------------------- -*- fortran -*- ----
+! sample jobcard for Ag Ag => e+ e- X with HADES acceptance filtering
+!------------------------------------------------------------------------------
+! Variants of this jobcard were used to produce results shown in this paper:
+! * https://inspirehep.net/literature/1818931
+!------------------------------------------------------------------------------
+
+! file: ./inputOutput/input.f90
+&input
+      eventtype           =       1 ! Heavy Ion Collisions (low energy)
+      numEnsembles        =     200
+      num_runs_sameEnergy =       1
+      numTimeSteps        = 150 ! number of time steps
+      delta_T             = 0.2 ! time step size
+      length_real         = 1000
+      length_perturbative = 0
+      checkGridSize_Flag  = T   ! check grid dimensions
+      path_To_Input   = '~/GiBUU/buuinput'
+    version = 2023
+/
+
+! file: ./database/particleProperties.f90
+&initDatabase
+      rho_dilep = T
+/
+
+! file: ./analysis/DileptonAnalysis.f90
+&DileptonAnalysis
+      enable           = T
+      particle_source  = T
+      Extra            = T
+      binsz            = 0.02
+      filter           = 0
+      massBinning(1:4) = 0.130, 0.300, 0.450, 0.650
+      brems            = 3      ! 1 = SPA (def), 2 = OBE, 3 = OBE+FF
+/
+
+! file: ./analysis/HeavyIonAnalysis.f90
+&HICanalysis_Input
+      flag_outputPert=.false.
+      flag_outputReal=.true.
+/
+
+! file: ./init/initHeavyIon.f90
+&heavyIon
+      impact_parameter    =   0.385
+      ekin_lab_Target     =   0.0
+      ekin_lab_Projectile =   1.58
+      adjustGridFlag      = T
+      cmsFlag             = T
+/
+
+! file: ./density/nucleus.f90
+&projectile
+     Z= 47, A=108
+/
+
+! file: ./density/nucleus.f90
+&target
+     Z= 47, A=108
+/
+
+! file code/potential/baryonPotential.f90
+!&baryonPotential
+!      EQS_Type=1  ! 1=soft mom-dep, 2=hard mom-dep, 3=soft non-mom-dep, 4=hard non-mom-dep, 5=medium mom-dep
+!      DeltaPot=1  ! 1=2/3 of nucleon potential, 2=100 MeV*rho/rhoNull, 3=nucleon potential
+!/
+
+! file: code/rmf/RMF.f90
+&RMF_input
+      RMF_flag        = T
+      N_set           = 3
+      fact_pbar       =  0.220000
+      fact_hyp        =  0.666666
+      fact_antihyp    =  0.666666
+      fact_Xi         =  0.333333
+      fact_antiXi     =  0.333333
+      fact_kaon       =  0.333333
+/
+
+! file: code/propagation/propagation.f90
+&propagation
+      delta_P=0.0001
+      delta_E=0.0001
+      dh_dp0_switch=T
+/
+
+! file: code/width/mesonWidthMedium.f90
+&width_Meson
+      mediumSwitch=3            ! 0 -- vacuum width, 1 -- constant collisional widths, 2 -- tab. T=0, 3 -- tab. finite T
+      Gamma_coll_omega = 0.070  ! GeV
+/
+
+! file: code/typeDefinitions/MassAssInfoDefinition.f90
+&MassAssInfo
+      UseMassAssInfo=F
+/
+
+! file: code/density/thermoDyn.f90
+&initThermoDynamics
+      temperatureSwitch = 2     ! 1 - ground state calculation at T=0, 2 - full procedure
+/
+
+! file: code/width/offShellPotential.f90
+&offShellPotential
+      useOffShellPotentialMesons = T
+      relativistic = T
+      SetOffShellEnergyFlag = T
+/
+
+! file: code/collisions/phaseSpace/XsectionRatios.f90
+&XsectionRatios_input
+      flagInMedium = F
+      InMediumMode=2            ! Song/Ko
+/
+
+! file: ./density/density.f90
+&initDensity
+      densitySwitch       = 1   ! 1=dynamic density according to testparticle density
+      gridSize            = 20, 20, 40 ! size of the box [fm]
+      gridPoints          = 40, 40, 80 ! Number of grid points
+      /
+
+&initPauli
+      pauliSwitch = 1           ! 1=dynamic, 2=analytic
+/
+
+! file: ./collisions/collisionTerm.f90
+&collisionterm
+      energyCheck     =  0.100  ! accuracy of energy check in GeV
+      maxOut  =          20
+      twoPlusOneBodyProcesses = F
+/
+
+! file code/collisions/twoBodyReactions/master_2Body.f90
+&master_2Body
+      baryonBaryonScattering=.true.
+      baryonMesonScattering=.true.
+      mesonMesonScattering=.true.
+      HiEnergyThresholdBarBar=4.0
+      HiEnergyThresholdBarBarDelta=0.0
+/
+
+&baryonBaryon
+      NNpi_BG = 3               ! (1=Teis, 2=Buss, 3=Weil)
+/
+
+&angular_distribution
+      NN_NR_noniso = T
+/
+
+&decayChannels
+      rhoDelta_is_sigmaDelta = T
+/
+
+! file: ./collisions/twoBodyReactions/HiEnergy/DoCollTools.f90
+&pythia
+      PARP(91) = 0.44     ! width intrinsic kT
+/
+
+! file: code/numerics/random.f90
+&initRandom
+      Seed = 45678              ! seed for the random number
+/
