@@ -1225,11 +1225,8 @@ contains
     integer, intent(in) :: nCall, nTimeStep
 
     character(len=40) :: fName  ! file name
-    character(len=6)  :: buf1
 
-    logical :: first_time
-    logical, save :: opened_pert = .false.
-    logical, save :: opened_real = .false.
+    logical, save :: first_time = .true.
 
     ! Convert logicals to integers for NuHepMC output
     integer :: fullEnsembleInt, localEnsembleInt, freezeRealInt, fermiInt
@@ -1250,23 +1247,13 @@ contains
     end if
 
     if (pert) then
-       buf1 = '.Pert'
        this%iFile = 726
     else
-       buf1 = '.Real'
-       this%iFile = 727
+      write(*,*) 'Output in NuHepMC format currently implemented only for perturbative particles. STOP!'
+      stop
     end if
 
-    fName = 'EventOutput' // trim(buf1) // '.hepmc3'
-
-    first_time = .false.
-    if (pert .and. .not. opened_pert) then
-      first_time = .true.
-      opened_pert = .true.
-    else if (.not. pert .and. .not. opened_real) then
-      first_time = .true.
-      opened_real = .true.
-    end if
+    fName = 'EventOutput.Pert.hepmc3'
 
     if (.not. first_time) then
       ! Append to existing file
@@ -1274,6 +1261,8 @@ contains
     else
       ! Open file for the first time
       open(this%iFile, file=fName, status='unknown')
+
+      first_time = .false.
 
       ! Write header
       write(this%iFile,'(A)') 'HepMC::Version 3.02.05'
@@ -1586,9 +1575,6 @@ contains
     class(NuHepMCOutputFile) :: this
     type(particle), intent(in) :: part
 
-    ! TODO: reintroduce this information as needed with appropriate vertices
-    !real, dimension(1:3) :: pos
-
     integer :: KF, status_code
     real :: part_mass, dist
 
@@ -1596,12 +1582,6 @@ contains
     targetNuc => getTarget()
 
     KF = KFfromBUU(part)
-
-    !if (useProductionPos) then
-    !   pos = getProductionPos(part)
-    !else
-    !   pos = part%pos
-    !end if
 
     ! Default to marking the particle as having not escaped the nucleus
     status_code = 23 ! Unescaped FSI
@@ -1633,11 +1613,15 @@ contains
   !****************************************************************************
   !****s* EventOutput/NuHepMC_write_additionalInfo
   ! NAME
-  ! subroutine NuHepMC_write_additionalInfo(this, iFE)
+  ! subroutine NuHepMC_write_additionalInfo(this, iFE, pNode)
   ! PURPOSE
   ! add additional info about the event, depending on eventtype.
   !****************************************************************************
   subroutine NuHepMC_write_additionalInfo(this, iFE, pNode)
+    use particlePointerListDefinition, only: tParticleListNode
+    class(NuHepMCOutputFile), intent(in) :: this
+    integer, intent(in), optional :: iFE
+    type(tParticleListNode), pointer, optional :: pNode
     ! Unnecessary for the NuHepMC format
   end subroutine NuHepMC_write_additionalInfo
 
