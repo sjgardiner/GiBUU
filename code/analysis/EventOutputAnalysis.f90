@@ -10,9 +10,10 @@
 ! Currently the following formats are supported:
 ! * "Les Houches" event files
 ! * "OSCAR 2013" event files, compatible with SMASH output
-! * "Shanghai 2014" even files, used for the code-comparison project at the
+! * "Shanghai 2014" event files, used for the code-comparison project at the
 !   Transport2014 workshop in Shanghai
 ! * "ROOT" in a simple NTuple format
+! * "NuHepMC" event files
 !
 ! For a description of the Les Houches format, please refer to:
 ! * http://arxiv.org/abs/hep-ph/0609017
@@ -26,6 +27,9 @@
 !
 ! In order to generate ROOT output we use the library RootTuple by D.Hall, see:
 ! * https://roottuple.hepforge.org/
+!
+! For a description of the NuHepMC format, see:
+! * https://arxiv.org/abs/2310.13211
 !
 ! INPUTS
 ! (none)
@@ -85,6 +89,8 @@ module EventOutputAnalysis
   !   EventOutput.Real.dat.
   ! * For ROOT, the output files are called EventOutput.Pert.root and
   !   EventOutput.Real.root.
+  ! * For NuHepMC, the output files are called EventOutput.Pert.hepmc3 and
+  !   EventOutput.Real.hepmc3.
   !****************************************************************************
 
   !****************************************************************************
@@ -148,7 +154,7 @@ contains
     write(*,*) 'Interval: ', Interval
     call Write_ReadingInput('EventOutput',1)
 
-    if (EventFormat < 1 .or. EventFormat > 5) then
+    if (EventFormat < 1 .or. EventFormat > 6) then
        write(*,*) "Bad EventFormat in EventOutputAnalysis: ", EventFormat
        stop
     end if
@@ -221,6 +227,8 @@ contains
           allocate(RootOutputFile :: events_pert, events_real)
        case (5)
           allocate(OscarExtOutputFile :: events_pert, events_real)
+       case (6)
+          allocate(NuHepMCOutputFile :: events_pert, events_real)
        case default
           write(*,*) "Bad EventFormat in EventOutputAnalysis: ", EventFormat
           stop

@@ -12,6 +12,7 @@
 ! * "OSCAR 2013" event files
 ! * "Shanghai 2014"
 ! * "Root"
+! * "NuHepMC"
 !
 ! For a description of the Les Houches format, please refer to:
 ! * http://arxiv.org/abs/hep-ph/0609017
@@ -19,6 +20,9 @@
 !
 ! For a description of the OSCAR 2013 format, see:
 ! * http://phy.duke.edu/~jeb65/oscar2013
+!
+! For a description of the NuHepMC format, see:
+! * https://arxiv.org/abs/2310.13211
 !
 ! INPUTS
 ! (none)
@@ -82,7 +86,7 @@ module EventOutput
     subroutine write_part_ifc(this, part)
       use particleDefinition
       import :: EventOutputFile
-      class(EventOutputFile), intent(in) :: this
+      class(EventOutputFile) :: this
       type(particle), intent(in) :: part
     end subroutine
   end interface
@@ -210,6 +214,31 @@ module EventOutput
   end type RootOutputFile
   !****************************************************************************
 
+  !****************************************************************************
+  !****t* EventOutput/NuHepMCOutputFile
+  ! NAME
+  ! type NuHepMCOutputFile
+  ! PURPOSE
+  ! This is an extended type for event output in the NuHepMC format
+  ! defined in https://arxiv.org/abs/2310.13211
+  !
+  ! SOURCE
+  !
+  type, extends(EventOutputFile), public :: NuHepMCOutputFile
+    real, private :: weight
+    integer, private :: particle_count
+  contains
+    procedure :: open                 => NuHepMC_open
+    procedure :: close                => NuHepMC_close
+    procedure :: write_event_header   => NuHepMC_write_event_header
+    procedure :: write_event_footer   => NuHepMC_write_event_footer
+    procedure :: write_particle       => NuHepMC_write_particle
+    procedure :: write_additionalInfo => NuHepMC_write_additionalInfo
+
+    ! Helper functions for preparing the output
+    procedure :: get_proc_ID => nuhepmc_proc_ID_from_buu
+  end type NuHepMCOutputFile
+  !****************************************************************************
 
 contains
 
@@ -354,7 +383,7 @@ contains
     use particleDefinition
     use ID_translation, only: KFfromBUU
 
-    class(LHOutputFile), intent(in) :: this
+    class(LHOutputFile) :: this
     type(particle), intent(in) :: part
 
     character(len=22), parameter :: f2 = '(1P,I8,5I5,5E18.10,A6)'
@@ -591,7 +620,7 @@ contains
     use particleDefinition
     use ID_translation, only: KFfromBUU
 
-    class(OscarOutputFile), intent(in) :: this
+    class(OscarOutputFile) :: this
     type(particle), intent(in) :: part
 
     character(len=22), parameter :: f = '(9ES17.9,2I9)'
@@ -749,7 +778,7 @@ contains
     use ID_translation, only: KFfromBUU
     use history, only: history_getParents,history_getGeneration
 
-    class(OscarExtOutputFile), intent(in) :: this
+    class(OscarExtOutputFile) :: this
     type(particle), intent(in) :: part
 
     character(len=30), parameter :: f = '(9ES17.9,2I9,2ES17.9,4I9)'
@@ -872,7 +901,7 @@ contains
     use particleDefinition
     use minkowski, only: abs4
 
-    class(ShanghaiOutputFile), intent(in) :: this
+    class(ShanghaiOutputFile) :: this
     type(particle), intent(in) :: part
 
     character(len=22), parameter :: f = '(2I9,7ES17.9)'
@@ -986,7 +1015,7 @@ contains
     use particleDefinition
     use ID_translation, only: KFfromBUU
 
-    class(RootOutputFile), intent(in) :: this
+    class(RootOutputFile) :: this
     type(particle), intent(in) :: part
 
     real, dimension(1:3) :: pos
@@ -1114,6 +1143,402 @@ contains
 !******************************************************************************
 !******************************************************************************
 
+  !****************************************************************************
+  !****f* EventOutput/nuhepmc_proc_ID_from_buu
+  ! NAME
+  ! function nuhepmc_proc_ID_from_buu(this, buu_prod_id)
+  ! PURPOSE
+  ! Convert integer codes describing a GiBUU event into a NuHepMC proc_ID code
+  !****************************************************************************
+  function nuhepmc_proc_ID_from_buu(this, buu_prod_id) result(nuhepmc_proc_ID)
+    use initNeutrino, only: process_ID !, flavor_ID
+
+    class(NuHepMCOutputFile) :: this
+    integer, intent(in) :: buu_prod_id !(1=N, 2=Delta, ..., 34=DIS, ...)
+    integer :: nuhepmc_proc_ID, abs_process_ID
+    integer, parameter :: EM = 1, CC = 2, NC = 3 ! positive process_ID values
+
+    ! NuHepMC procID codes for CC events based on E.C.1
+    integer, parameter :: QEL_ID = 200, MEC_ID = 300, RES_ID = 400
+    integer, parameter :: SIS_ID = 500, DIS_ID = 600
+    integer, parameter :: NC_OFFSET = 50
+
+    ! Negative process_ID values in GiBUU represent antilepton channels.
+    ! We take the absolute value here to get a general treatment.
+    abs_process_ID = abs(process_ID)
+    if ( abs(process_ID) .eq. EM ) then
+      write(*,*) 'Output in NuHepMC format currently not implemented for EM processes. STOP!'
+      stop
+    end if
+
+    ! Default to zero ("unknown"), then try to assign a different code
+    nuhepmc_proc_ID = 0
+    if (buu_prod_id .eq. 1) then
+      nuhepmc_proc_ID = QEL_ID ! 200 = Quasielastic
+    else if (buu_prod_id .ge. 2 .and. buu_prod_id .le. 31) then
+      nuhepmc_proc_ID = RES_ID ! 400 = Delta RES
+      if (buu_prod_id .gt. 2) then
+        nuhepmc_proc_ID = nuhepmc_proc_ID + 1 ! 401 = Other RES
+      end if
+    else if (buu_prod_id .ge. 32 .and. buu_prod_id .le. 33) then
+      nuhepmc_proc_ID = SIS_ID ! 500 = 1 pi neutron-background
+      if (buu_prod_id .gt. 32) then
+        nuhepmc_proc_ID = nuhepmc_proc_ID + 1 ! 501 = 1 pi proton-background
+      end if
+    else if (buu_prod_id .eq. 34) then
+      nuhepmc_proc_ID = DIS_ID ! 600 = DIS
+    else if (buu_prod_id .ge. 35 .and. buu_prod_id .le. 36) then
+      nuhepmc_proc_ID = MEC_ID ! 300 = 2p2h QE
+      if (buu_prod_id .gt. 35) then
+        nuhepmc_proc_ID = nuhepmc_proc_ID + 1 ! 301 = 2p2h Delta
+      end if
+    else if (buu_prod_id .eq. 37) then
+      nuhepmc_proc_ID = SIS_ID + 2 ! 502 = 2 pi background
+    end if
+
+    if (nuhepmc_proc_ID .ne. 0 .and. abs(process_ID) .eq. NC) then
+      ! Add 50 to the codes above for NC channels
+      nuhepmc_proc_ID = nuhepmc_proc_ID + NC_OFFSET
+    end if
+
+  end function nuhepmc_proc_ID_from_buu
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_open
+  ! NAME
+  ! subroutine NuHepMC_open(this, pert, nCall, nTimeStep)
+  ! PURPOSE
+  ! Open a file for event-information output in NuHepMC format.
+  !****************************************************************************
+  subroutine NuHepMC_open(this, pert, nCall, nTimeStep)
+    use eventtypes, only: neutrino !, hiLepton, heavyIon, hadron
+    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy
+    use initNeutrino, only: process_ID, flavor_ID
+
+    class(NuHepMCOutputFile) :: this
+    logical, intent(in) :: pert
+    integer, intent(in) :: nCall, nTimeStep
+
+    character(len=40) :: fName  ! file name
+    character(len=6)  :: buf1
+    character(len=8)  :: buf2
+
+    if (eventType .ne. neutrino) then
+       write(*,*) 'Output in NuHepMC format currently implemented only for neutrino events. STOP!'
+       stop
+    end if
+
+    if (pert) then
+       buf1 = '.Pert.'
+    else
+       buf1 = '.Real.'
+    end if
+    write(buf2,'(I8.8)') nCall
+    fName = 'EventOutput' // trim(buf1) // trim(buf2) // '.hepmc3'
+
+    ! open file
+    open(this%iFile, file=fName, status='unknown')
+    rewind(this%iFile)
+
+    write(this%iFile,'(A)') 'HepMC::Version 3.02.05'
+    write(this%iFile,'(A)') 'HepMC::Asciiv3-START_EVENT_LISTING'
+    write(this%iFile,'(A)') 'W CV'
+    write(this%iFile,'(A)') 'T GiBUU\|2023.0\|'
+
+    write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
+    write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
+    write(this%iFile,'(A16,1X,I0)') 'A GiBUU.FlavorID', flavor_ID
+    write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
+
+    write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.DOI 10.1016/j.physrep.2011.12.001 10.1088/1361-6471/ab3830'
+    write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.arXiv 1106.1344 1904.11506 2308.16161'
+
+    ! TODO: fix this
+    write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.2 E.C.4 E.C.5 G.C.1 G.C.4 G.C.5 G.C.6'
+    ! TODO: add this
+    write(this%iFile,'(A)') 'A NuHepMC.FluxAveragedTotalCrossSection'
+    write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
+
+    ! Lookup table for NuHepMC procID codes
+    ! These are produced from GiBUU event information via the helper function
+    ! nuhepmc_proc_ID_from_buu defined above
+    !
+    ! 0 = Unknown
+    ! 200 = Quasielastic
+    ! 300 = 2p2h QE
+    ! 301 = 2p2h Delta
+    ! 400 = Delta RES
+    ! 401 = Other RES
+    ! 500 = 1 pi neutron-background
+    ! 501 = 1 pi proton-background
+    ! 502 = 2 pi background
+    ! 600 = DIS
+    ! Add 50 to the codes above for NC channels. EM codes not yet assigned.
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessIDs 200 250 300 301 350 351 400 401 450 451 500 501 550 551 600 650'
+
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Description Unrecognized interaction type'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Name Unknown'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Description Charged-current quasielastic'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Name CCQE'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Description Neutral-current quasielastic'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Name NCQE'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Description Charged-current 2p2h quasielastic'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Name CC 2p2h QE'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Description Neutral-current 2p2h quasielastic'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Name NC 2p2h QE'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Description Charged-current 2p2h Delta production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Name CC 2p2h Delta'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Description Neutral-current 2p2h Delta production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Name NC 2p2h Delta'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Description Charged-current resonant Delta production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Name CC RES Delta'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Description Neutral-current resonant Delta production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Name NC RES Delta'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Description Charged-current other resonance production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Name CC RES other'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Description Neutral-current other resonance production'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Name NC RES other'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Description Charged-current single-pion neutron background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Name CC Bkgd-n'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Description Neutral-current single-pion neutron background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Name NC Bkgd-n'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Description Charged-current single-pion proton background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Name CC Bkgd-p'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Description Neutral-current single-pion proton background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Name NC Bkgd-p'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Description Charged-current two-pion background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Name CC Bkgd 2pi'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Description Neutral-current two-pion background'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Name NC Bkgd 2pi'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Description Charged-current deep inelastic scattering'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Name CC DIS'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Description Neutral-current deep inelastic scattering'
+    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Name NC DIS'
+
+    ! TODO: adjust the cross-section units when EM channels are added to the
+    ! code for NuHepMC-format output
+    write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.TargetScale PerTargetNucleon'
+    write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.Unit 1e-38 cm2'
+
+    write(this%iFile,'(A)') 'A NuHepMC.Version.Major 0'
+    write(this%iFile,'(A)') 'A NuHepMC.Version.Minor 9'
+    write(this%iFile,'(A)') 'A NuHepMC.Version.Patch 0'
+    write(this%iFile,'(A)') 'A NuHepMC.VertexStatusIDs'
+
+  end subroutine NuHepMC_open
+
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_close
+  ! NAME
+  ! subroutine NuHepMC_close(this)
+  ! PURPOSE
+  ! Close a file after outputting event information in NuHepMC format.
+  !****************************************************************************
+  subroutine NuHepMC_close(this)
+    class(NuHepMCOutputFile), intent(in) :: this
+
+    write(this%iFile,'(A)') 'HepMC::Asciiv3-END_EVENT_LISTING'
+
+  end subroutine NuHepMC_close
+
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_write_event_header
+  ! NAME
+  ! subroutine NuHepMC_write_event_header(this, nParts, nEvent, wgt, iFE)
+  ! PURPOSE
+  ! Write the header for an event in NuHepMC format,
+  ! including the number of particles and the event weight.
+  !****************************************************************************
+  subroutine NuHepMC_write_event_header(this, nParts, nEvent, wgt, iFE)
+    use neutrinoProdInfo, only: NeutrinoProdInfo_Get
+    use initNeutrino, only: process_ID, flavor_ID
+
+    class(NuHepMCOutputFile) :: this
+    integer, intent(in) :: nParts            ! number of particles
+    integer, intent(in) :: nEvent            ! number of current event
+    real, intent(in), optional :: wgt        ! weight of event
+    integer, intent(in), optional :: iFE     ! firstFvent
+
+    real :: per_weight, nu_mass, hit_nuc_mass, lep_mass
+    integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id
+    integer :: neutrino_pdg_code, hit_nuc_pdg_code, lep_pdg_code
+    real, dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
+
+    this%weight = 1.0
+    if (present(wgt)) this%weight=wgt
+
+    write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 3, ' 1'
+    write(this%iFile,'(A)') 'U GEV CM'
+    write(this%iFile,'(A2,E28.22)') 'W ', this%weight
+    write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
+
+    neutrino_pdg_code = 0
+    lep_pdg_code = 0
+    select case (flavor_ID)
+      case (1)
+        neutrino_pdg_code = 12 ! nu_e
+      case (2)
+        neutrino_pdg_code = 14 ! nu_mu
+      case (3)
+        neutrino_pdg_code = 16 ! nu_tau
+    end select
+
+    ! Antileptons have negative process_ID values
+    if ( process_ID .lt. 0 ) then
+      neutrino_pdg_code = -1 * neutrino_pdg_code
+    end if
+
+    ! Assign the outgoing lepton PDG code based on whether this is a CC
+    ! event (process_ID = ±2) or not
+    if ( abs(process_ID) .eq. 2 ) then
+       if (process_ID .eq. 2) then
+         lep_pdg_code = neutrino_pdg_code - 1
+       else
+         lep_pdg_code = neutrino_pdg_code + 1
+       end if
+    else
+       lep_pdg_code = neutrino_pdg_code
+    end if
+
+    !Get(iFE,... ?????
+    if (NeutrinoProdInfo_Get(nEvent,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
+
+       my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
+       write(this%iFile,'(A11,I0)') 'A 0 ProcID ', my_nuhepmc_proc_id
+       write(this%iFile,'(A20,E28.22E2)') 'A 0 GiBUU.PerWeight ', per_weight
+
+       !call rootaddint(targetNuc%mass, "nucleus_A")
+       !call rootaddint(targetNuc%charge, "nucleus_Z")
+
+       ! Add particle definition for projectile
+       nu_mass = sqrt(max(0., momLepIn(0)**2 - momLepIn(1)**2 - momLepIn(2)**2 - momLepIn(3)**2))
+       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 1 0 ', neutrino_pdg_code, momLepIn(1), momLepIn(2), momLepIn(3), momLepIn(0), nu_mass, ' 4'
+
+       ! Add particle definition for the struck nucleon
+       hit_nuc_mass = sqrt(max(0., momNuc(0)**2 - momNuc(1)**2 - momNuc(2)**2 - momNuc(3)**2))
+
+       hit_nuc_pdg_code = 2112 ! n
+       if (chrg_nuc .gt. 0) then
+         hit_nuc_pdg_code = 2212 ! p
+       end if
+
+       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A3)') 'P 2 0 ', hit_nuc_pdg_code, momNuc(1), momNuc(2), momNuc(3), momNuc(0), hit_nuc_mass, ' 20'
+
+       ! Add fixed primary vertex definition
+       write(this%iFile,'(A)') 'V -1 1 [1,2] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
+
+       lep_mass = sqrt(max(0., momLepOut(0)**2 - momLepOut(1)**2 - momLepOut(2)**2 - momLepOut(3)**2))
+       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 3 -1 ', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
+
+       ! Update the total particle count now that we've added the first
+       ! three in this subroutine
+       this%particle_count = 3
+
+    end if
+
+  end subroutine NuHepMC_write_event_header
+
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_write_event_footer
+  ! NAME
+  ! subroutine NuHepMC_write_event_footer(this)
+  ! PURPOSE
+  ! Write the footer that closes a event in NuHepMC format.
+  !****************************************************************************
+  subroutine NuHepMC_write_event_footer(this)
+    class(NuHepMCOutputFile), intent(in) :: this
+
+    ! Do nothing
+
+  end subroutine NuHepMC_write_event_footer
+
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_write_particle
+  ! NAME
+  ! subroutine NuHepMC_write_particle(iFile, part)
+  ! PURPOSE
+  ! Write a single particle in NuHepMC format.
+  !****************************************************************************
+  subroutine NuHepMC_write_particle(this, part)
+    use particleDefinition
+    use ID_translation, only: KFfromBUU
+
+    class(NuHepMCOutputFile) :: this
+    type(particle), intent(in) :: part
+
+    ! TODO: reintroduce this information as needed with appropriate vertices
+    !real, dimension(1:3) :: pos
+
+    integer :: KF
+    real :: part_mass
+
+    KF = KFfromBUU(part)
+
+    !if (useProductionPos) then
+    !   pos = getProductionPos(part)
+    !else
+    !   pos = part%pos
+    !end if
+
+    ! Increment the particle count and write out the particle in the
+    ! event record
+    this%particle_count = this%particle_count + 1
+    part_mass = sqrt(max(0., part%mom(0)**2 - part%mom(1)**2 - part%mom(2)**2 - part%mom(3)**2))
+
+    write(this%iFile,'(A2,I0,A4,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,A2)') 'P ', this%particle_count, ' -1 ', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, ' 1'
+
+  end subroutine NuHepMC_write_particle
+
+  !****************************************************************************
+  !****s* EventOutput/NuHepMC_write_additionalInfo
+  ! NAME
+  ! subroutine NuHepMC_write_additionalInfo(this, iFE)
+  ! PURPOSE
+  ! add additional info about the event, depending on eventtype.
+  !****************************************************************************
+  subroutine NuHepMC_write_additionalInfo(this, iFE, pNode)
+    use particlePointerListDefinition
+    use EventInfo_HiLep, only: EventInfo_HiLep_Get
+    use neutrinoProdInfo, only: NeutrinoProdInfo_Get
+    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy
+    use initNeutrino, only: process_ID, flavor_ID
+    use nucleusDefinition
+    use nucleus, only: getTarget
+    use eventtypes, only: hiLepton, neutrino, heavyIon, hadron
+    use initHeavyIon, only: b_HI => b
+    use initHadron, only: b_had => b
+    use FreezeoutAnalysis, only: getFreezeoutAnalysis_Pert
+    use PIL_freezeout, only: PIL_freezeout_GET
+
+    class(NuHepMCOutputFile), intent(in) :: this
+    integer, intent(in), optional :: iFE
+    type(tParticleListNode), pointer, optional :: pNode
+    !type(tNucleus), pointer :: targetNuc
+
+    !real :: weight,nu,Q2,eps,phiL
+    !integer :: evtType, chrg_nuc
+    !real,dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
+
+    !targetNuc => getTarget()
+
+    !select case (eventType)
+    !case (neutrino)
+    !  if (.not. present(iFE)) return
+    !  if (NeutrinoProdInfo_Get(iFE,evtType,Weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
+    !     !call rootaddint(targetNuc%mass, "nucleus_A")
+    !     !call rootaddint(targetNuc%charge, "nucleus_Z")
+    !  end if
+    !end select
+
+  end subroutine NuHepMC_write_additionalInfo
+
+!******************************************************************************
+!******************************************************************************
+!******************************************************************************
 
   !****************************************************************************
   !****s* EventOutput/write_real
