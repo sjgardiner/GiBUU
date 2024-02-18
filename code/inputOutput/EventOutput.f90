@@ -1638,40 +1638,7 @@ contains
   ! add additional info about the event, depending on eventtype.
   !****************************************************************************
   subroutine NuHepMC_write_additionalInfo(this, iFE, pNode)
-    use particlePointerListDefinition
-    use EventInfo_HiLep, only: EventInfo_HiLep_Get
-    use neutrinoProdInfo, only: NeutrinoProdInfo_Get
-    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy
-    use initNeutrino, only: process_ID, flavor_ID
-    use nucleusDefinition
-    use nucleus, only: getTarget
-    use eventtypes, only: hiLepton, neutrino, heavyIon, hadron
-    use initHeavyIon, only: b_HI => b
-    use initHadron, only: b_had => b
-    use FreezeoutAnalysis, only: getFreezeoutAnalysis_Pert
-    use PIL_freezeout, only: PIL_freezeout_GET
-
-    class(NuHepMCOutputFile), intent(in) :: this
-    integer, intent(in), optional :: iFE
-    type(tParticleListNode), pointer, optional :: pNode
-    !type(tNucleus), pointer :: targetNuc
-
-    !real :: weight,nu,Q2,eps,phiL
-    !integer :: evtType, chrg_nuc
-    !real,dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
-
-    !type(tNucleus), pointer :: targetNuc
-    !targetNuc => getTarget()
-
-    !select case (eventType)
-    !case (neutrino)
-    !  if (.not. present(iFE)) return
-    !  if (NeutrinoProdInfo_Get(iFE,evtType,Weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
-    !     !call rootaddint(targetNuc%mass, "nucleus_A")
-    !     !call rootaddint(targetNuc%charge, "nucleus_Z")
-    !  end if
-    !end select
-
+    ! Unnecessary for the NuHepMC format
   end subroutine NuHepMC_write_additionalInfo
 
 !******************************************************************************
