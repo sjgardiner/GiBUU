@@ -1214,7 +1214,7 @@ contains
   !****************************************************************************
   subroutine NuHepMC_open(this, pert, nCall, nTimeStep)
     use eventtypes, only: neutrino !, hiLepton, heavyIon, hadron
-    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy, numTimeSteps
+    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy, numTimeSteps, delta_T, fullEnsemble, localEnsemble, num_energies, freezeRealParticles
     use initNeutrino, only: process_ID, flavor_ID
     use random, only: getSeed
 
@@ -1228,6 +1228,9 @@ contains
     logical :: first_time
     logical, save :: opened_pert = .false.
     logical, save :: opened_real = .false.
+
+    ! Convert logicals to integers for NuHepMC output
+    integer :: fullEnsembleInt, localEnsembleInt, freezeRealInt
 
     if (eventType .ne. neutrino) then
        write(*,*) 'Output in NuHepMC format currently implemented only for neutrino events. STOP!'
@@ -1273,17 +1276,35 @@ contains
       write(this%iFile,'(A)') 'W CV'
       write(this%iFile,'(A)') 'T GiBUU\|2023.2\|'
 
+      write(this%iFile,'(A14,1X,E28.22)') 'A GiBUU.DeltaT', delta_T
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
+      write(this%iFile,'(A17,1X,I0)') 'A GiBUU.EventType', eventType
+
+      fullEnsembleInt = 0
+      if (fullEnsemble) fullEnsembleInt = 1
+      write(this%iFile,'(A20,1X,I0)') 'A GiBUU.FullEnsemble', fullEnsembleInt
+
       write(this%iFile,'(A16,1X,I0)') 'A GiBUU.FlavorID', flavor_ID
+
+      freezeRealInt = 0
+      if (freezeRealParticles) freezeRealInt = 1
+      write(this%iFile,'(A27,1X,I0)') 'A GiBUU.FreezeRealParticles', freezeRealInt
+
+      localEnsembleInt = 0
+      if (localEnsemble) localEnsembleInt = 1
+      write(this%iFile,'(A22,I0)') 'A GiBUU.LocalEnsemble ', localEnsembleInt
+
+      write(this%iFile,'(A19,1X,I0)') 'A GiBUU.NumEnergies', num_energies
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
       write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
       write(this%iFile,'(A18,1X,I0)') 'A GiBUU.RandomSeed', getSeed()
+      write(this%iFile,'(A17,1X,I0)') 'A GiBUU.TimeSteps', numTimeSteps
 
       write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.DOI 10.1016/j.physrep.2011.12.001 10.1088/1361-6471/ab3830'
       write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.arXiv 1106.1344 1904.11506 2308.16161'
 
-      ! TODO: fix this
-      write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.4 E.C.5 G.C.1 G.C.4 G.C.6'
+      ! Signal the NuHepMC conventions followed by the GiBUU output
+      write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.4 E.C.5 G.C.1 G.C.4 G.C.6 P.C.1 P.C.2 V.C.1'
 
       write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
 
@@ -1387,9 +1408,11 @@ contains
   ! including the number of particles and the event weight.
   !****************************************************************************
   subroutine NuHepMC_write_event_header(this, nParts, nEvent, wgt, iFE)
-    use neutrinoProdInfo, only: NeutrinoProdInfo_Get
     use initNeutrino, only: process_ID, flavor_ID
     use inputGeneral, only: current_run_number, num_runs_SameEnergy
+    use neutrinoProdInfo, only: NeutrinoProdInfo_Get
+    use nucleusDefinition
+    use nucleus, only: getTarget
 
     class(NuHepMCOutputFile) :: this
     integer, intent(in) :: nParts            ! number of particles
@@ -1398,14 +1421,29 @@ contains
     integer, intent(in), optional :: iFE     ! firstFvent
 
     real :: per_weight, nu_mass, hit_nuc_mass, lep_mass
-    integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id
+    integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id, tgt_pdg_code
     integer :: neutrino_pdg_code, hit_nuc_pdg_code, lep_pdg_code
     real, dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
+
+    type(tNucleus), pointer :: targetNuc
+
+    ! Compute the PDG code for the target nucleus
+    targetNuc => getTarget()
+    tgt_pdg_code = 0
+    if (targetNuc%mass .eq. 1) then
+      if (targetNuc%charge .eq. 1) then
+        tgt_pdg_code = 2212 ! p
+      else
+        tgt_pdg_code = 2112 ! n
+      end if
+    else
+      tgt_pdg_code = 10000*targetNuc%charge + 10*targetNuc%mass + 1000000000
+    end if
 
     this%weight = 1.0
     if (present(wgt)) this%weight=wgt
 
-    write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 3, ' 1'
+    write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 5, ' 2'
     write(this%iFile,'(A)') 'U GEV CM'
     write(this%iFile,'(A2,E28.22)') 'W ', this%weight
 
@@ -1444,42 +1482,53 @@ contains
        lep_pdg_code = neutrino_pdg_code
     end if
 
-    if (NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
-
-       my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
-       write(this%iFile,'(A20,I0)') 'A 0 GiBUU.EventType ', prod_id_buu
-       write(this%iFile,'(A13,1X,I0)') 'A 0 GiBUU.Run', current_run_number
-       write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
-       write(this%iFile,'(A11,I0)') 'A 0 ProcID ', my_nuhepmc_proc_id
-
-       !call rootaddint(targetNuc%mass, "nucleus_A")
-       !call rootaddint(targetNuc%charge, "nucleus_Z")
-
-       ! Add particle definition for projectile
-       nu_mass = sqrt(max(0., momLepIn(0)**2 - momLepIn(1)**2 - momLepIn(2)**2 - momLepIn(3)**2))
-       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 1 0 ', neutrino_pdg_code, momLepIn(1), momLepIn(2), momLepIn(3), momLepIn(0), nu_mass, ' 4'
-
-       ! Add particle definition for the struck nucleon
-       hit_nuc_mass = sqrt(max(0., momNuc(0)**2 - momNuc(1)**2 - momNuc(2)**2 - momNuc(3)**2))
-
-       hit_nuc_pdg_code = 2112 ! n
-       if (chrg_nuc .gt. 0) then
-         hit_nuc_pdg_code = 2212 ! p
-       end if
-
-       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A3)') 'P 2 0 ', hit_nuc_pdg_code, momNuc(1), momNuc(2), momNuc(3), momNuc(0), hit_nuc_mass, ' 20'
-
-       ! Add fixed primary vertex definition
-       write(this%iFile,'(A)') 'V -1 1 [1,2] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
-
-       lep_mass = sqrt(max(0., momLepOut(0)**2 - momLepOut(1)**2 - momLepOut(2)**2 - momLepOut(3)**2))
-       write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 3 -1', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
-
-       ! Update the total particle count now that we've added the first
-       ! three in this subroutine
-       this%particle_count = 3
-
+    if (.not. NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
+      write(*,*) 'Failed to load required information for NuHepMC output. STOP!'
+      stop
     end if
+
+    my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
+    write(this%iFile,'(A19,1X,I0)') 'A 0 GiBUU.ChannelID', prod_id_buu
+    write(this%iFile,'(A13,1X,I0)') 'A 0 GiBUU.Run', current_run_number
+    write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
+    write(this%iFile,'(A11,I0)') 'A 0 ProcID ', my_nuhepmc_proc_id
+
+    ! Add particle definition for projectile
+    nu_mass = sqrt(max(0., momLepIn(0)**2 - momLepIn(1)**2 - momLepIn(2)**2 - momLepIn(3)**2))
+    write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 1 0 ', neutrino_pdg_code, momLepIn(1), momLepIn(2), momLepIn(3), momLepIn(0), nu_mass, ' 4'
+
+    ! Add particle definition for the target nucleus
+    ! TODO: This is solely a dummy particle for bookkeeping purposes.
+    ! The mass is set to zero to signal this. Update to something realistic
+    ! as needed.
+    write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 2 0 ', tgt_pdg_code, 0., 0., 0., 0., 0., 20
+
+    ! Add fixed nucleon separation vertex definition
+    write(this%iFile,'(A)') 'V -2 21 [2] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
+
+    ! Add particle definition for the struck nucleon
+    hit_nuc_mass = sqrt(max(0., momNuc(0)**2 - momNuc(1)**2 - momNuc(2)**2 - momNuc(3)**2))
+
+    hit_nuc_pdg_code = 2112 ! n
+    if (chrg_nuc .gt. 0) then
+      hit_nuc_pdg_code = 2212 ! p
+    end if
+
+    write(this%iFile,'(A7,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A3)') 'P 3 -2 ', hit_nuc_pdg_code, momNuc(1), momNuc(2), momNuc(3), momNuc(0), hit_nuc_mass, ' 21'
+
+    ! Add particle definition for outgoing nuclear remnant (also a dummy
+    ! particle for bookkeeping only)
+    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 4 -2', 200990000, 0., 0., 0., 0., 0., 20
+
+    ! Add fixed primary vertex definition
+    write(this%iFile,'(A)') 'V -1 1 [1,3] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
+
+    lep_mass = sqrt(max(0., momLepOut(0)**2 - momLepOut(1)**2 - momLepOut(2)**2 - momLepOut(3)**2))
+    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 5 -1', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
+
+    ! Update the total particle count now that we've added the first
+    ! three in this subroutine
+    this%particle_count = 5
 
   end subroutine NuHepMC_write_event_header
 
@@ -1566,6 +1615,7 @@ contains
     !integer :: evtType, chrg_nuc
     !real,dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
 
+    !type(tNucleus), pointer :: targetNuc
     !targetNuc => getTarget()
 
     !select case (eventType)
