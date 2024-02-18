@@ -299,7 +299,7 @@ contains
     ! PURPOSE
     ! Contains all perturbative particles of a given run in NuHepMC format.
     ! Can be enabled by the switch WritePerturbativeParticles.
-    ! The data from all subsequent runs will be written into different files.
+    ! The data from all subsequent runs will be written into a single file.
     !**************************************************************************
     if (WritePerturbativeParticles) then
        call events_pert%open(.true., nCall, timestep)
@@ -354,7 +354,7 @@ contains
     ! PURPOSE
     ! Contains all real particles of a given run in NuHepMC format.
     ! Can be enabled by the switch WriteRealParticles.
-    ! The data from all subsequent runs will be written into different files.
+    ! The data from all subsequent runs will be written into a single file.
     !**************************************************************************
     if (WriteRealParticles) then
       call events_real%open(.false., nCall, timestep)

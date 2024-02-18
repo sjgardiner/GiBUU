@@ -225,7 +225,9 @@ module EventOutput
   ! SOURCE
   !
   type, extends(EventOutputFile), public :: NuHepMCOutputFile
-    real, private :: weight, avg_xsec
+    real, private :: weight
+    real, private :: avg_xsec = 0.
+    real, private :: avg_xsec_variance = 0.
     integer, private :: particle_count
   contains
     procedure :: open                 => NuHepMC_open
@@ -1212,128 +1214,145 @@ contains
   !****************************************************************************
   subroutine NuHepMC_open(this, pert, nCall, nTimeStep)
     use eventtypes, only: neutrino !, hiLepton, heavyIon, hadron
-    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy
-    use initNeutrino, only: process_ID, flavor_ID, get_runtime_vars, max_finalstate_ID
+    use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy, numTimeSteps
+    use initNeutrino, only: process_ID, flavor_ID
     use random, only: getSeed
 
     class(NuHepMCOutputFile) :: this
     logical, intent(in) :: pert
     integer, intent(in) :: nCall, nTimeStep
 
-    real,dimension(0:max_finalstate_ID) :: sigabsArrFinal
-
     character(len=40) :: fName  ! file name
     character(len=6)  :: buf1
-    character(len=8)  :: buf2
+
+    logical :: first_time
+    logical, save :: opened_pert = .false.
+    logical, save :: opened_real = .false.
 
     if (eventType .ne. neutrino) then
        write(*,*) 'Output in NuHepMC format currently implemented only for neutrino events. STOP!'
        stop
     end if
 
-    if (pert) then
-       buf1 = '.Pert.'
-    else
-       buf1 = '.Real.'
+    if (nTimeStep .lt. numTimeSteps) then
+      write(*,*) 'nTimeStep = ', nTimeStep
+      write(*,*) 'numTimeSteps = ', numTimeSteps
+      write(*,*) 'Output in NuHepMC format currently implemented only for the final time step. STOP!'
+      stop
     end if
-    write(buf2,'(I8.8)') nCall
-    fName = 'EventOutput' // trim(buf1) // trim(buf2) // '.hepmc3'
 
-    ! open file
-    open(this%iFile, file=fName, status='unknown')
-    rewind(this%iFile)
+    if (pert) then
+       buf1 = '.Pert'
+       this%iFile = 726
+    else
+       buf1 = '.Real'
+       this%iFile = 727
+    end if
 
-    write(this%iFile,'(A)') 'HepMC::Version 3.02.05'
-    write(this%iFile,'(A)') 'HepMC::Asciiv3-START_EVENT_LISTING'
-    write(this%iFile,'(A)') 'W CV'
-    write(this%iFile,'(A)') 'T GiBUU\|2023.2\|'
+    fName = 'EventOutput' // trim(buf1) // '.hepmc3'
 
-    write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
-    write(this%iFile,'(A16,1X,I0)') 'A GiBUU.FlavorID', flavor_ID
-    write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
-    write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
-    write(this%iFile,'(A18,1X,I0)') 'A GiBUU.RandomSeed', getSeed()
+    first_time = .false.
+    if (pert .and. .not. opened_pert) then
+      first_time = .true.
+      opened_pert = .true.
+    else if (.not. pert .and. .not. opened_real) then
+      first_time = .true.
+      opened_real = .true.
+    end if
 
-    write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.DOI 10.1016/j.physrep.2011.12.001 10.1088/1361-6471/ab3830'
-    write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.arXiv 1106.1344 1904.11506 2308.16161'
+    if (.not. first_time) then
+      ! Append to existing file
+      open(this%iFile, file=fName, status='old', position='append')
+    else
+      ! Open file for the first time
+      open(this%iFile, file=fName, status='unknown')
 
-    ! TODO: fix this
-    write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.2 E.C.4 E.C.5 G.C.1 G.C.4 G.C.5 G.C.6'
+      ! Write header
+      write(this%iFile,'(A)') 'HepMC::Version 3.02.05'
+      write(this%iFile,'(A)') 'HepMC::Asciiv3-START_EVENT_LISTING'
+      write(this%iFile,'(A)') 'W CV'
+      write(this%iFile,'(A)') 'T GiBUU\|2023.2\|'
 
-    ! Store the flux-averaged inclusive total cross section in the
-    ! run information
-    call get_runtime_vars(GsigabsArrFinal=sigabsArrFinal)
-    this%avg_xsec = sigabsArrFinal(0) / real(num_runs_SameEnergy)
+      write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
+      write(this%iFile,'(A16,1X,I0)') 'A GiBUU.FlavorID', flavor_ID
+      write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
+      write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
+      write(this%iFile,'(A18,1X,I0)') 'A GiBUU.RandomSeed', getSeed()
 
-    ! TODO: add this
-    write(this%iFile,'(A39,1X,E28.22)') 'A NuHepMC.FluxAveragedTotalCrossSection', this%avg_xsec
-    write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
+      write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.DOI 10.1016/j.physrep.2011.12.001 10.1088/1361-6471/ab3830'
+      write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.arXiv 1106.1344 1904.11506 2308.16161'
 
-    ! Lookup table for NuHepMC procID codes
-    ! These are produced from GiBUU event information via the helper function
-    ! nuhepmc_proc_ID_from_buu defined above
-    !
-    ! 0 = Unknown
-    ! 200 = Quasielastic
-    ! 300 = 2p2h QE
-    ! 301 = 2p2h Delta
-    ! 400 = Delta RES
-    ! 401 = Other RES
-    ! 500 = 1 pi neutron-background
-    ! 501 = 1 pi proton-background
-    ! 502 = 2 pi background
-    ! 600 = DIS
-    ! Add 50 to the codes above for NC channels. EM codes not yet assigned.
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessIDs 200 250 300 301 350 351 400 401 450 451 500 501 550 551 600 650'
+      ! TODO: fix this
+      write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.4 E.C.5 G.C.1 G.C.4 G.C.6'
 
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Description Unrecognized interaction type'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Name Unknown'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Description Charged-current quasielastic'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Name CCQE'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Description Neutral-current quasielastic'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Name NCQE'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Description Charged-current 2p2h quasielastic'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Name CC 2p2h QE'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Description Neutral-current 2p2h quasielastic'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Name NC 2p2h QE'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Description Charged-current 2p2h Delta production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Name CC 2p2h Delta'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Description Neutral-current 2p2h Delta production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Name NC 2p2h Delta'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Description Charged-current resonant Delta production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Name CC RES Delta'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Description Neutral-current resonant Delta production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Name NC RES Delta'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Description Charged-current other resonance production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Name CC RES other'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Description Neutral-current other resonance production'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Name NC RES other'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Description Charged-current single-pion neutron background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Name CC Bkgd-n'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Description Neutral-current single-pion neutron background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Name NC Bkgd-n'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Description Charged-current single-pion proton background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Name CC Bkgd-p'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Description Neutral-current single-pion proton background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Name NC Bkgd-p'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Description Charged-current two-pion background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Name CC Bkgd 2pi'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Description Neutral-current two-pion background'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Name NC Bkgd 2pi'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Description Charged-current deep inelastic scattering'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Name CC DIS'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Description Neutral-current deep inelastic scattering'
-    write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Name NC DIS'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
 
-    ! TODO: adjust the cross-section units when EM channels are added to the
-    ! code for NuHepMC-format output
-    write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.TargetScale PerTargetNucleon'
-    write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.Unit 1e-38 cm2'
+      ! Lookup table for NuHepMC procID codes
+      ! These are produced from GiBUU event information via the helper function
+      ! nuhepmc_proc_ID_from_buu defined above
+      !
+      ! 0 = Unknown
+      ! 200 = Quasielastic
+      ! 300 = 2p2h QE
+      ! 301 = 2p2h Delta
+      ! 400 = Delta RES
+      ! 401 = Other RES
+      ! 500 = 1 pi neutron-background
+      ! 501 = 1 pi proton-background
+      ! 502 = 2 pi background
+      ! 600 = DIS
+      ! Add 50 to the codes above for NC channels. EM codes not yet assigned.
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessIDs 200 250 300 301 350 351 400 401 450 451 500 501 550 551 600 650'
 
-    write(this%iFile,'(A)') 'A NuHepMC.Version.Major 0'
-    write(this%iFile,'(A)') 'A NuHepMC.Version.Minor 9'
-    write(this%iFile,'(A)') 'A NuHepMC.Version.Patch 0'
-    write(this%iFile,'(A)') 'A NuHepMC.VertexStatusIDs'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Description Unrecognized interaction type'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Name Unknown'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Description Charged-current quasielastic'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[200].Name CCQE'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Description Neutral-current quasielastic'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[250].Name NCQE'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Description Charged-current 2p2h quasielastic'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[300].Name CC 2p2h QE'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Description Neutral-current 2p2h quasielastic'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[350].Name NC 2p2h QE'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Description Charged-current 2p2h Delta production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[301].Name CC 2p2h Delta'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Description Neutral-current 2p2h Delta production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[351].Name NC 2p2h Delta'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Description Charged-current resonant Delta production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[400].Name CC RES Delta'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Description Neutral-current resonant Delta production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[450].Name NC RES Delta'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Description Charged-current other resonance production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[401].Name CC RES other'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Description Neutral-current other resonance production'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[451].Name NC RES other'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Description Charged-current single-pion neutron background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[500].Name CC Bkgd-n'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Description Neutral-current single-pion neutron background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[550].Name NC Bkgd-n'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Description Charged-current single-pion proton background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[501].Name CC Bkgd-p'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Description Neutral-current single-pion proton background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[551].Name NC Bkgd-p'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Description Charged-current two-pion background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[502].Name CC Bkgd 2pi'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Description Neutral-current two-pion background'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[552].Name NC Bkgd 2pi'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Description Charged-current deep inelastic scattering'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[600].Name CC DIS'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Description Neutral-current deep inelastic scattering'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[650].Name NC DIS'
+
+      ! TODO: adjust the cross-section units when EM channels are added to the
+      ! code for NuHepMC-format output
+      write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.TargetScale PerTargetNucleon'
+      write(this%iFile,'(A)') 'A NuHepMC.Units.CrossSection.Unit 1e-38 cm2'
+
+      write(this%iFile,'(A)') 'A NuHepMC.Version.Major 0'
+      write(this%iFile,'(A)') 'A NuHepMC.Version.Minor 9'
+      write(this%iFile,'(A)') 'A NuHepMC.Version.Patch 0'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusIDs'
+    end if
 
   end subroutine NuHepMC_open
 
@@ -1346,9 +1365,15 @@ contains
   ! Close a file after outputting event information in NuHepMC format.
   !****************************************************************************
   subroutine NuHepMC_close(this)
+    use inputGeneral, only: current_run_number, num_runs_SameEnergy
+
     class(NuHepMCOutputFile), intent(in) :: this
 
-    write(this%iFile,'(A)') 'HepMC::Asciiv3-END_EVENT_LISTING'
+    if (current_run_number .eq. num_runs_SameEnergy) then
+      write(this%iFile,'(A)') 'HepMC::Asciiv3-END_EVENT_LISTING'
+    end if
+
+    close(this%iFile)
 
   end subroutine NuHepMC_close
 
@@ -1364,7 +1389,7 @@ contains
   subroutine NuHepMC_write_event_header(this, nParts, nEvent, wgt, iFE)
     use neutrinoProdInfo, only: NeutrinoProdInfo_Get
     use initNeutrino, only: process_ID, flavor_ID
-    use inputGeneral, only: current_run_number
+    use inputGeneral, only: current_run_number, num_runs_SameEnergy
 
     class(NuHepMCOutputFile) :: this
     integer, intent(in) :: nParts            ! number of particles
@@ -1372,7 +1397,7 @@ contains
     real, intent(in), optional :: wgt        ! weight of event
     integer, intent(in), optional :: iFE     ! firstFvent
 
-    real :: per_weight, nu_mass, hit_nuc_mass, lep_mass, nuhepmc_wgt
+    real :: per_weight, nu_mass, hit_nuc_mass, lep_mass
     integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id
     integer :: neutrino_pdg_code, hit_nuc_pdg_code, lep_pdg_code
     real, dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
@@ -1380,15 +1405,16 @@ contains
     this%weight = 1.0
     if (present(wgt)) this%weight=wgt
 
-    ! Convert to a dimensionless weight for the NuHepMC output using
-    ! the flux-averaged total cross section
-    nuhepmc_wgt = this%weight / this%avg_xsec
-
     write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 3, ' 1'
     write(this%iFile,'(A)') 'U GEV CM'
-    write(this%iFile,'(A2,E28.22)') 'W ', nuhepmc_wgt
-    write(this%iFile,'(A11,1X,I0)') 'A GiBUU.Run', current_run_number
-    write(this%iFile,'(A17,1X,E28.22)') 'A GiBUU.PerWeight', this%weight
+    write(this%iFile,'(A2,E28.22)') 'W ', this%weight
+
+    ! Update the running value of the flux-averaged total cross section
+    ! and its MC statistical variance
+    this%avg_xsec = this%avg_xsec + (this%weight / real(num_runs_SameEnergy))
+    this%avg_xsec_variance = this%avg_xsec_variance + (this%weight**2 / real(num_runs_SameEnergy)**2)
+
+    write(this%iFile,'(A19,1X,E28.22,1X,E28.22,1X,A5)') 'A 0 GenCrossSection', this%avg_xsec, sqrt(max(0.,this%avg_xsec_variance)), '-1 -1'
 
     neutrino_pdg_code = 0
     lep_pdg_code = 0
@@ -1421,7 +1447,8 @@ contains
     if (NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
 
        my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
-       write(this%iFile,'(A11,I0)') 'A 0 GiBUU.EventType ', prod_id_buu
+       write(this%iFile,'(A20,I0)') 'A 0 GiBUU.EventType ', prod_id_buu
+       write(this%iFile,'(A13,1X,I0)') 'A 0 GiBUU.Run', current_run_number
        write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
        write(this%iFile,'(A11,I0)') 'A 0 ProcID ', my_nuhepmc_proc_id
 
