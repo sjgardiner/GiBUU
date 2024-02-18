@@ -1216,6 +1216,8 @@ contains
     use eventtypes, only: neutrino !, hiLepton, heavyIon, hadron
     use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy, numTimeSteps, delta_T, fullEnsemble, localEnsemble, num_energies, freezeRealParticles
     use initNeutrino, only: process_ID, flavor_ID
+    use nucleus, only: getTarget
+    use nucleusDefinition
     use random, only: getSeed
 
     class(NuHepMCOutputFile) :: this
@@ -1230,7 +1232,10 @@ contains
     logical, save :: opened_real = .false.
 
     ! Convert logicals to integers for NuHepMC output
-    integer :: fullEnsembleInt, localEnsembleInt, freezeRealInt
+    integer :: fullEnsembleInt, localEnsembleInt, freezeRealInt, fermiInt
+
+    type(tNucleus), pointer :: targetNuc
+    targetNuc => getTarget()
 
     if (eventType .ne. neutrino) then
        write(*,*) 'Output in NuHepMC format currently implemented only for neutrino events. STOP!'
@@ -1294,6 +1299,19 @@ contains
       if (localEnsemble) localEnsembleInt = 1
       write(this%iFile,'(A22,I0)') 'A GiBUU.LocalEnsemble ', localEnsembleInt
 
+      ! Add some attributes for the target nucleus (currently shared by
+      ! all events)
+      write(this%iFile,'(A30,1X,I0)') 'A GiBUU.NucDensitySwitchStatic', targetNuc%densitySwitch_static
+      write(this%iFile,'(A29,1X,E28.22)') 'A GiBUU.NucFermiMomentumInput', targetNuc%fermiMomentum_input
+
+      fermiInt = 0
+      if (targetNuc%fermiMotion) fermiInt = 1
+      write(this%iFile,'(A22,1X,I0)') 'A GiBUU.NucFermiMotion', fermiInt
+
+      write(this%iFile,'(A19,E28.22)') 'A GiBUU.NucMaxDist ', targetNuc%MaxDist
+      write(this%iFile,'(A17,1X,E28.22)') 'A GiBUU.NucRadius', targetNuc%radius
+      write(this%iFile,'(A19,E28.22)') 'A GiBUU.NucSurface ', targetNuc%surface
+
       write(this%iFile,'(A19,1X,I0)') 'A GiBUU.NumEnergies', num_energies
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
       write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
@@ -1306,7 +1324,11 @@ contains
       ! Signal the NuHepMC conventions followed by the GiBUU output
       write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.4 E.C.5 G.C.1 G.C.4 G.C.6 P.C.1 P.C.2 V.C.1'
 
-      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs 22 23'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[22].Description Nuclear remnant for bookkeeping'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[22].Name NuclRemnant'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[23].Description Particle did not escape the nucleus after all simulated time steps'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[23].Name UnescapedFSI'
 
       ! Lookup table for NuHepMC procID codes
       ! These are produced from GiBUU event information via the helper function
@@ -1518,7 +1540,7 @@ contains
 
     ! Add particle definition for outgoing nuclear remnant (also a dummy
     ! particle for bookkeeping only)
-    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 4 -2', 200990000, 0., 0., 0., 0., 0., 20
+    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 4 -2', 200990000, 0., 0., 0., 0., 0., 22
 
     ! Add fixed primary vertex definition
     write(this%iFile,'(A)') 'V -1 1 [1,3] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
@@ -1556,6 +1578,8 @@ contains
   ! Write a single particle in NuHepMC format.
   !****************************************************************************
   subroutine NuHepMC_write_particle(this, part)
+    use nucleusDefinition
+    use nucleus, only: getTarget
     use particleDefinition
     use ID_translation, only: KFfromBUU
 
@@ -1565,8 +1589,11 @@ contains
     ! TODO: reintroduce this information as needed with appropriate vertices
     !real, dimension(1:3) :: pos
 
-    integer :: KF
-    real :: part_mass
+    integer :: KF, status_code
+    real :: part_mass, dist
+
+    type(tNucleus), pointer :: targetNuc
+    targetNuc => getTarget()
 
     KF = KFfromBUU(part)
 
@@ -1576,12 +1603,30 @@ contains
     !   pos = part%pos
     !end if
 
+    ! Default to marking the particle as having not escaped the nucleus
+    status_code = 23 ! Unescaped FSI
+    ! A final-state particle's total energy must be at least its on-shell mass
+    if (part%mom(0) .ge. part%mass) then
+      ! For a complex target, the particle must also be outside the nucleus
+      if (targetNuc%mass .gt. 1) then
+        dist = sqrt(max(0., part%pos(1)**2 + part%pos(2)**2 + part%pos(3)**2))
+        if (dist .gt. targetNuc%radius + targetNuc%surface) then
+          status_code = 1 ! Final-state
+        end if
+      else
+        status_code = 1 ! Final-state
+      end if
+    end if
+
     ! Increment the particle count and write out the particle in the
     ! event record
     this%particle_count = this%particle_count + 1
     part_mass = sqrt(max(0., part%mom(0)**2 - part%mom(1)**2 - part%mom(2)**2 - part%mom(3)**2))
 
-    write(this%iFile,'(A2,I0,A4,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,A2)') 'P ', this%particle_count, ' -1 ', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, ' 1'
+    write(this%iFile,'(A2,I0,A4,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P ', this%particle_count, ' -1 ', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, status_code
+
+    write(this%iFile,'(A,1X,I0,1X,A14,1X,E23.16)') 'A', this%particle_count, 'GiBUU.Distance', dist
+    write(this%iFile,'(A,1X,I0,1X,A17,1X,E23.16)') 'A', this%particle_count, 'GiBUU.OnShellMass', part%mass
 
   end subroutine NuHepMC_write_particle
 
