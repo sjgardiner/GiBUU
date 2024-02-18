@@ -65,7 +65,7 @@ module random
 
   public :: rn, rnFlat, rnExp, rnGauss, rnCos, rn_openInterval, rnPower
   public :: rnOmega, rnOmega_anis, rnOmega_angles
-  public :: setRandom, rn_truefalse, ranCharge
+  public :: setRandom, rn_truefalse, ranCharge, getSeed
 
   logical, save :: first = .true.
 
@@ -514,5 +514,17 @@ contains
     end do
   end subroutine rancharge
 
+  !****************************************************************************
+  !****f* random/getSeed
+  ! NAME
+  ! integer function getSeed()
+  ! PURPOSE
+  ! Retrieves the current value of the random number seed
+  ! USAGE
+  ! (integer)=getSeed()
+  !****************************************************************************
+  integer function getSeed()
+    getSeed=Seed
+  end function getSeed
 
 end module random

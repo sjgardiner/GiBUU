@@ -79,6 +79,7 @@ module EventOutputAnalysis
   ! * 3 = Shanghai 2014 format
   ! * 4 = ROOT
   ! * 5 = OSCAR 2013 extended format
+  ! * 6 = NuHepMC format
   !
   ! NOTES
   ! * For Les Houches, the output will be written to files called
@@ -291,6 +292,15 @@ contains
     ! Can be enabled by the switch WritePerturbativeParticles.
     ! The data from all subsequent runs will be written into different files.
     !**************************************************************************
+    !**************************************************************************
+    !****o* EventOutputAnalysis/EventOutput.Pert.hepmc3
+    ! NAME
+    ! file EventOutput.Pert.hepmc3
+    ! PURPOSE
+    ! Contains all perturbative particles of a given run in NuHepMC format.
+    ! Can be enabled by the switch WritePerturbativeParticles.
+    ! The data from all subsequent runs will be written into different files.
+    !**************************************************************************
     if (WritePerturbativeParticles) then
        call events_pert%open(.true., nCall, timestep)
        call events_pert%write_pert(pertPart)
@@ -334,6 +344,15 @@ contains
     ! file EventOutput.Real.root
     ! PURPOSE
     ! Contains all real particles of a given run in ROOT format.
+    ! Can be enabled by the switch WriteRealParticles.
+    ! The data from all subsequent runs will be written into different files.
+    !**************************************************************************
+    !**************************************************************************
+    !****o* EventOutputAnalysis/EventOutput.Real.hepmc3
+    ! NAME
+    ! file EventOutput.Real.hepmc3
+    ! PURPOSE
+    ! Contains all real particles of a given run in NuHepMC format.
     ! Can be enabled by the switch WriteRealParticles.
     ! The data from all subsequent runs will be written into different files.
     !**************************************************************************

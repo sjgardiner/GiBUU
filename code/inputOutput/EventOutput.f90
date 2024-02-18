@@ -225,7 +225,7 @@ module EventOutput
   ! SOURCE
   !
   type, extends(EventOutputFile), public :: NuHepMCOutputFile
-    real, private :: weight
+    real, private :: weight, avg_xsec
     integer, private :: particle_count
   contains
     procedure :: open                 => NuHepMC_open
@@ -1213,11 +1213,14 @@ contains
   subroutine NuHepMC_open(this, pert, nCall, nTimeStep)
     use eventtypes, only: neutrino !, hiLepton, heavyIon, hadron
     use inputGeneral, only: eventType, numEnsembles, num_runs_SameEnergy
-    use initNeutrino, only: process_ID, flavor_ID
+    use initNeutrino, only: process_ID, flavor_ID, get_runtime_vars, max_finalstate_ID
+    use random, only: getSeed
 
     class(NuHepMCOutputFile) :: this
     logical, intent(in) :: pert
     integer, intent(in) :: nCall, nTimeStep
+
+    real,dimension(0:max_finalstate_ID) :: sigabsArrFinal
 
     character(len=40) :: fName  ! file name
     character(len=6)  :: buf1
@@ -1243,20 +1246,27 @@ contains
     write(this%iFile,'(A)') 'HepMC::Version 3.02.05'
     write(this%iFile,'(A)') 'HepMC::Asciiv3-START_EVENT_LISTING'
     write(this%iFile,'(A)') 'W CV'
-    write(this%iFile,'(A)') 'T GiBUU\|2023.0\|'
+    write(this%iFile,'(A)') 'T GiBUU\|2023.2\|'
 
     write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
-    write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
     write(this%iFile,'(A16,1X,I0)') 'A GiBUU.FlavorID', flavor_ID
     write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
+    write(this%iFile,'(A12,1X,I0)') 'A GiBUU.Runs', num_runs_SameEnergy
+    write(this%iFile,'(A18,1X,I0)') 'A GiBUU.RandomSeed', getSeed()
 
     write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.DOI 10.1016/j.physrep.2011.12.001 10.1088/1361-6471/ab3830'
     write(this%iFile,'(A)') 'A NuHepMC.Citations.Generator.arXiv 1106.1344 1904.11506 2308.16161'
 
     ! TODO: fix this
     write(this%iFile,'(A)') 'A NuHepMC.Conventions E.C.1 E.C.2 E.C.4 E.C.5 G.C.1 G.C.4 G.C.5 G.C.6'
+
+    ! Store the flux-averaged inclusive total cross section in the
+    ! run information
+    call get_runtime_vars(GsigabsArrFinal=sigabsArrFinal)
+    this%avg_xsec = sigabsArrFinal(0) / real(num_runs_SameEnergy)
+
     ! TODO: add this
-    write(this%iFile,'(A)') 'A NuHepMC.FluxAveragedTotalCrossSection'
+    write(this%iFile,'(A39,1X,E28.22)') 'A NuHepMC.FluxAveragedTotalCrossSection', this%avg_xsec
     write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs'
 
     ! Lookup table for NuHepMC procID codes
@@ -1354,6 +1364,7 @@ contains
   subroutine NuHepMC_write_event_header(this, nParts, nEvent, wgt, iFE)
     use neutrinoProdInfo, only: NeutrinoProdInfo_Get
     use initNeutrino, only: process_ID, flavor_ID
+    use inputGeneral, only: current_run_number
 
     class(NuHepMCOutputFile) :: this
     integer, intent(in) :: nParts            ! number of particles
@@ -1361,7 +1372,7 @@ contains
     real, intent(in), optional :: wgt        ! weight of event
     integer, intent(in), optional :: iFE     ! firstFvent
 
-    real :: per_weight, nu_mass, hit_nuc_mass, lep_mass
+    real :: per_weight, nu_mass, hit_nuc_mass, lep_mass, nuhepmc_wgt
     integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id
     integer :: neutrino_pdg_code, hit_nuc_pdg_code, lep_pdg_code
     real, dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
@@ -1369,10 +1380,15 @@ contains
     this%weight = 1.0
     if (present(wgt)) this%weight=wgt
 
+    ! Convert to a dimensionless weight for the NuHepMC output using
+    ! the flux-averaged total cross section
+    nuhepmc_wgt = this%weight / this%avg_xsec
+
     write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 3, ' 1'
     write(this%iFile,'(A)') 'U GEV CM'
-    write(this%iFile,'(A2,E28.22)') 'W ', this%weight
-    write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
+    write(this%iFile,'(A2,E28.22)') 'W ', nuhepmc_wgt
+    write(this%iFile,'(A11,1X,I0)') 'A GiBUU.Run', current_run_number
+    write(this%iFile,'(A17,1X,E28.22)') 'A GiBUU.PerWeight', this%weight
 
     neutrino_pdg_code = 0
     lep_pdg_code = 0
@@ -1402,12 +1418,12 @@ contains
        lep_pdg_code = neutrino_pdg_code
     end if
 
-    !Get(iFE,... ?????
-    if (NeutrinoProdInfo_Get(nEvent,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
+    if (NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
 
        my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
+       write(this%iFile,'(A11,I0)') 'A 0 GiBUU.EventType ', prod_id_buu
+       write(this%iFile,'(A)') 'A 0 LabPos 0.000000 0.000000 0.000000 0.000000'
        write(this%iFile,'(A11,I0)') 'A 0 ProcID ', my_nuhepmc_proc_id
-       write(this%iFile,'(A20,E28.22E2)') 'A 0 GiBUU.PerWeight ', per_weight
 
        !call rootaddint(targetNuc%mass, "nucleus_A")
        !call rootaddint(targetNuc%charge, "nucleus_Z")
@@ -1430,7 +1446,7 @@ contains
        write(this%iFile,'(A)') 'V -1 1 [1,2] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
 
        lep_mass = sqrt(max(0., momLepOut(0)**2 - momLepOut(1)**2 - momLepOut(2)**2 - momLepOut(3)**2))
-       write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 3 -1 ', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
+       write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 3 -1', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
 
        ! Update the total particle count now that we've added the first
        ! three in this subroutine
