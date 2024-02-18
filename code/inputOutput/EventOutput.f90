@@ -1315,9 +1315,9 @@ contains
 
       write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusIDs 22 23'
       write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[22].Description Nuclear remnant for bookkeeping'
-      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[22].Name NuclRemnant'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[22].Name NuclRemnant'
       write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[23].Description Particle did not escape the nucleus after all simulated time steps'
-      write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[23].Name UnescapedFSI'
+      write(this%iFile,'(A)') 'A NuHepMC.ParticleStatusInfo[23].Name UnescapedFSI'
 
       ! Lookup table for NuHepMC procID codes
       ! These are produced from GiBUU event information via the helper function
@@ -1334,7 +1334,7 @@ contains
       ! 502 = 2 pi background
       ! 600 = DIS
       ! Add 50 to the codes above for NC channels. EM codes not yet assigned.
-      write(this%iFile,'(A)') 'A NuHepMC.ProcessIDs 200 250 300 301 350 351 400 401 450 451 500 501 550 551 600 650'
+      write(this%iFile,'(A)') 'A NuHepMC.ProcessIDs 0 200 250 300 301 350 351 400 401 450 451 500 501 550 551 600 650'
 
       write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Description Unrecognized interaction type'
       write(this%iFile,'(A)') 'A NuHepMC.ProcessInfo[0].Name Unknown'
@@ -1383,7 +1383,12 @@ contains
       write(this%iFile,'(A)') 'A NuHepMC.Version.Major 0'
       write(this%iFile,'(A)') 'A NuHepMC.Version.Minor 9'
       write(this%iFile,'(A)') 'A NuHepMC.Version.Patch 0'
-      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusIDs'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusIDs 1 21'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusInfo[1].Description Primary interaction vertex'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusInfo[1].Name Primary'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusInfo[21].Description Nucleon separation vertex'
+      write(this%iFile,'(A)') 'A NuHepMC.VertexStatusInfo[21].Name HitNucleon'
+
     end if
 
   end subroutine NuHepMC_open
@@ -1454,7 +1459,7 @@ contains
     this%weight = 1.0
     if (present(wgt)) this%weight=wgt
 
-    write(this%iFile,'(A2,I0,1X,I0,A2)') 'E ', nEvent, nParts + 5, ' 2'
+    write(this%iFile,'(A,1X,I0,1X,I0,1X,I0)') 'E', nEvent, 2, nParts + 5
     write(this%iFile,'(A)') 'U GEV CM'
     write(this%iFile,'(A2,E28.22)') 'W ', this%weight
 
@@ -1605,8 +1610,8 @@ contains
 
     write(this%iFile,'(A2,I0,A4,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P ', this%particle_count, ' -1 ', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, status_code
 
-    write(this%iFile,'(A,1X,I0,1X,A14,1X,E23.16)') 'A', this%particle_count, 'GiBUU.Distance', dist
-    write(this%iFile,'(A,1X,I0,1X,A17,1X,E23.16)') 'A', this%particle_count, 'GiBUU.OnShellMass', part%mass
+    !write(this%iFile,'(A,1X,I0,1X,A14,1X,E23.16)') 'A', this%particle_count, 'GiBUU.Distance', dist
+    !write(this%iFile,'(A,1X,I0,1X,A17,1X,E23.16)') 'A', this%particle_count, 'GiBUU.OnShellMass', part%mass
 
   end subroutine NuHepMC_write_particle
 
