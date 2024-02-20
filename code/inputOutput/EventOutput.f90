@@ -1270,7 +1270,7 @@ contains
       write(this%iFile,'(A)') 'W CV'
       write(this%iFile,'(A)') 'T GiBUU\|2023.2\|'
 
-      write(this%iFile,'(A14,1X,E28.22)') 'A GiBUU.DeltaT', delta_T
+      write(this%iFile,'(A14,1X,E0.16)') 'A GiBUU.DeltaT', delta_T
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.Ensembles', numEnsembles
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.EventType', eventType
 
@@ -1291,15 +1291,15 @@ contains
       ! Add some attributes for the target nucleus (currently shared by
       ! all events)
       write(this%iFile,'(A30,1X,I0)') 'A GiBUU.NucDensitySwitchStatic', targetNuc%densitySwitch_static
-      write(this%iFile,'(A29,1X,E28.22)') 'A GiBUU.NucFermiMomentumInput', targetNuc%fermiMomentum_input
+      write(this%iFile,'(A29,1X,E0.16)') 'A GiBUU.NucFermiMomentumInput', targetNuc%fermiMomentum_input
 
       fermiInt = 0
       if (targetNuc%fermiMotion) fermiInt = 1
       write(this%iFile,'(A22,1X,I0)') 'A GiBUU.NucFermiMotion', fermiInt
 
-      write(this%iFile,'(A19,E28.22)') 'A GiBUU.NucMaxDist ', targetNuc%MaxDist
-      write(this%iFile,'(A17,1X,E28.22)') 'A GiBUU.NucRadius', targetNuc%radius
-      write(this%iFile,'(A19,E28.22)') 'A GiBUU.NucSurface ', targetNuc%surface
+      write(this%iFile,'(A19,E0.16)') 'A GiBUU.NucMaxDist ', targetNuc%MaxDist
+      write(this%iFile,'(A17,1X,E0.16)') 'A GiBUU.NucRadius', targetNuc%radius
+      write(this%iFile,'(A19,E0.16)') 'A GiBUU.NucSurface ', targetNuc%surface
 
       write(this%iFile,'(A19,1X,I0)') 'A GiBUU.NumEnergies', num_energies
       write(this%iFile,'(A17,1X,I0)') 'A GiBUU.ProcessID', process_ID
@@ -1461,14 +1461,14 @@ contains
 
     write(this%iFile,'(A,1X,I0,1X,I0,1X,I0)') 'E', nEvent, 2, nParts + 5
     write(this%iFile,'(A)') 'U GEV CM'
-    write(this%iFile,'(A2,E28.22)') 'W ', this%weight
+    write(this%iFile,'(A2,E0.16)') 'W ', this%weight
 
     ! Update the running value of the flux-averaged total cross section
     ! and its MC statistical variance
     this%avg_xsec = this%avg_xsec + (this%weight / real(num_runs_SameEnergy))
     this%avg_xsec_variance = this%avg_xsec_variance + (this%weight**2 / real(num_runs_SameEnergy)**2)
 
-    write(this%iFile,'(A19,1X,E28.22,1X,E28.22,1X,A5)') 'A 0 GenCrossSection', this%avg_xsec, sqrt(max(0.,this%avg_xsec_variance)), '-1 -1'
+    write(this%iFile,'(A19,1X,E0.16,1X,E0.16,1X,A5)') 'A 0 GenCrossSection', this%avg_xsec, sqrt(max(0.,this%avg_xsec_variance)), '-1 -1'
 
     neutrino_pdg_code = 0
     lep_pdg_code = 0
@@ -1511,13 +1511,13 @@ contains
 
     ! Add particle definition for projectile
     nu_mass = sqrt(max(0., momLepIn(0)**2 - momLepIn(1)**2 - momLepIn(2)**2 - momLepIn(3)**2))
-    write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 1 0 ', neutrino_pdg_code, momLepIn(1), momLepIn(2), momLepIn(3), momLepIn(0), nu_mass, ' 4'
+    write(this%iFile,'(A6,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,A2)') 'P 1 0 ', neutrino_pdg_code, momLepIn(1), momLepIn(2), momLepIn(3), momLepIn(0), nu_mass, ' 4'
 
     ! Add particle definition for the target nucleus
     ! TODO: This is solely a dummy particle for bookkeeping purposes.
     ! The mass is set to zero to signal this. Update to something realistic
     ! as needed.
-    write(this%iFile,'(A6,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 2 0 ', tgt_pdg_code, 0., 0., 0., 0., 0., 20
+    write(this%iFile,'(A6,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,I0)') 'P 2 0 ', tgt_pdg_code, 0., 0., 0., 0., 0., 20
 
     ! Add fixed nucleon separation vertex definition
     write(this%iFile,'(A)') 'V -2 21 [2] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
@@ -1530,17 +1530,17 @@ contains
       hit_nuc_pdg_code = 2212 ! p
     end if
 
-    write(this%iFile,'(A7,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A3)') 'P 3 -2 ', hit_nuc_pdg_code, momNuc(1), momNuc(2), momNuc(3), momNuc(0), hit_nuc_mass, ' 21'
+    write(this%iFile,'(A7,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,A3)') 'P 3 -2 ', hit_nuc_pdg_code, momNuc(1), momNuc(2), momNuc(3), momNuc(0), hit_nuc_mass, ' 21'
 
     ! Add particle definition for outgoing nuclear remnant (also a dummy
     ! particle for bookkeeping only)
-    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P 4 -2', 200990000, 0., 0., 0., 0., 0., 22
+    write(this%iFile,'(A6,1X,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,I0)') 'P 4 -2', 200990000, 0., 0., 0., 0., 0., 22
 
     ! Add fixed primary vertex definition
     write(this%iFile,'(A)') 'V -1 1 [1,3] @ 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00'
 
     lep_mass = sqrt(max(0., momLepOut(0)**2 - momLepOut(1)**2 - momLepOut(2)**2 - momLepOut(3)**2))
-    write(this%iFile,'(A6,1X,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,A2)') 'P 5 -1', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
+    write(this%iFile,'(A6,1X,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,A2)') 'P 5 -1', lep_pdg_code, momLepOut(1), momLepOut(2), momLepOut(3), momLepOut(0), lep_mass, ' 1'
 
     ! Update the total particle count now that we've added the first
     ! three in this subroutine
@@ -1608,10 +1608,10 @@ contains
     this%particle_count = this%particle_count + 1
     part_mass = sqrt(max(0., part%mom(0)**2 - part%mom(1)**2 - part%mom(2)**2 - part%mom(3)**2))
 
-    write(this%iFile,'(A2,I0,A4,I0,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,E23.16,1X,I0)') 'P ', this%particle_count, ' -1 ', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, status_code
+    write(this%iFile,'(A,1X,I0,1X,A2,1X,I0,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,E0.16,1X,I0)') 'P', this%particle_count, '-1', KF, part%mom(1), part%mom(2), part%mom(3), part%mom(0), part_mass, status_code
 
-    !write(this%iFile,'(A,1X,I0,1X,A14,1X,E23.16)') 'A', this%particle_count, 'GiBUU.Distance', dist
-    !write(this%iFile,'(A,1X,I0,1X,A17,1X,E23.16)') 'A', this%particle_count, 'GiBUU.OnShellMass', part%mass
+    !write(this%iFile,'(A,1X,I0,1X,A14,1X,E0.16)') 'A', this%particle_count, 'GiBUU.Distance', dist
+    !write(this%iFile,'(A,1X,I0,1X,A17,1X,E0.16)') 'A', this%particle_count, 'GiBUU.OnShellMass', part%mass
 
   end subroutine NuHepMC_write_particle
 
