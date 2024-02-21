@@ -26,6 +26,9 @@ module neutrinoProdInfo
      integer             :: prod_id    = 0
      real                :: perweight  = 0.
      integer             :: chrg_nuc   = 0
+     integer             :: ntrials    = 0
+     integer             :: nsuccess   = 0
+     real                :: weight     = 0.
   end type tneutrinoProdInfo
   !
   ! PURPOSE
@@ -93,7 +96,8 @@ contains
   ! OUTPUT
   ! ---
   !****************************************************************************
-  subroutine neutrinoProdInfo_Store(i,prod_id,perweight,Mom_LepIn,Mom_LepOut,Mom_Bos,Mom_Nuc,Chrg_Nuc)
+  subroutine neutrinoProdInfo_Store(i,prod_id,perweight,Mom_LepIn,Mom_LepOut,Mom_Bos,Mom_Nuc,Chrg_Nuc,&
+                                    ntrials, nsuccess, weight)
 
     integer,intent(in)             :: i
     integer,intent(in)             :: prod_id
@@ -103,6 +107,8 @@ contains
     real,dimension(0:3),intent(in) :: Mom_Bos
     real,dimension(0:3),intent(in) :: Mom_Nuc
     integer,intent(in) :: Chrg_Nuc
+    integer,intent(in) :: ntrials, nsuccess
+    real,intent(in) :: weight
 
     nuProdInfo(i)%flagOK=.true.
     nuProdInfo(i)%prod_id=prod_id
@@ -112,6 +118,9 @@ contains
     nuProdInfo(i)%mom_Bos=mom_Bos
     nuProdInfo(i)%mom_nuc=Mom_Nuc
     nuProdInfo(i)%chrg_nuc=Chrg_Nuc
+    nuProdInfo(i)%ntrials=ntrials
+    nuProdInfo(i)%nsuccess=nsuccess
+    nuProdInfo(i)%weight=weight
 
   end subroutine NeutrinoProdInfo_Store
 
@@ -137,7 +146,8 @@ contains
   ! * real,dimension(0:3), OPTIONAL    :: Mom_Bos
   ! * integer, OPTIONAL :: Chrg_Nuc
   !****************************************************************************
-  logical function neutrinoProdInfo_Get(i,prod_id,perweight,Mom_LepIn,Mom_LepOut,Mom_Bos,Mom_Nuc, Chrg_Nuc)
+  logical function neutrinoProdInfo_Get(i,prod_id,perweight,Mom_LepIn,Mom_LepOut,Mom_Bos,Mom_Nuc, Chrg_Nuc,&
+                                        ntrials, nsuccess, weight)
 
     integer,intent(in)              :: i
     integer,intent(out)             :: prod_id
@@ -147,6 +157,8 @@ contains
     real,dimension(0:3),intent(out) :: Mom_Bos
     real,dimension(0:3),intent(out),OPTIONAL :: Mom_Nuc
     integer,intent(out),OPTIONAL             :: Chrg_Nuc
+    integer,intent(out),OPTIONAL :: ntrials, nsuccess
+    real,intent(out),OPTIONAL :: weight
 
 
     neutrinoProdInfo_Get = .FALSE.
@@ -160,6 +172,9 @@ contains
     mom_Bos=nuProdInfo(i)%mom_Bos
     if (present(Mom_Nuc)) mom_Nuc=nuProdInfo(i)%mom_Nuc
     if (present(Chrg_Nuc)) Chrg_Nuc = nuProdInfo(i)%chrg_nuc
+    if (present(ntrials)) ntrials = nuProdInfo(i)%ntrials
+    if (present(nsuccess)) nsuccess = nuProdInfo(i)%nsuccess
+    if (present(weight)) weight = nuProdInfo(i)%weight
 
     neutrinoProdInfo_Get = nuProdInfo(i)%flagOK
 

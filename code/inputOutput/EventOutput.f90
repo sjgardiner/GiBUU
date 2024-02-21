@@ -226,8 +226,10 @@ module EventOutput
   !
   type, extends(EventOutputFile), public :: NuHepMCOutputFile
     real, private :: weight
-    real, private :: avg_xsec = 0.
-    real, private :: avg_xsec_variance = 0.
+    real, private :: sum_weight = 0.
+    real, private :: sum_weight2 = 0.
+    integer, private :: nevents = 0.
+    integer, private :: ntrials = 0.
     integer, private :: particle_count
   contains
     procedure :: open                 => NuHepMC_open
@@ -1436,10 +1438,12 @@ contains
     real, intent(in), optional :: wgt        ! weight of event
     integer, intent(in), optional :: iFE     ! firstFvent
 
+    real :: xsec, error
     real :: per_weight, nu_mass, hit_nuc_mass, lep_mass
     integer :: prod_id_buu, chrg_nuc, my_nuhepmc_proc_id, tgt_pdg_code
     integer :: neutrino_pdg_code, hit_nuc_pdg_code, lep_pdg_code
     real, dimension(0:3) :: momLepIn, momLepOut, momBos, momNuc
+    integer :: ntrials, nsuccess
 
     type(tNucleus), pointer :: targetNuc
 
@@ -1465,10 +1469,20 @@ contains
 
     ! Update the running value of the flux-averaged total cross section
     ! and its MC statistical variance
-    this%avg_xsec = this%avg_xsec + (this%weight / real(num_runs_SameEnergy))
-    this%avg_xsec_variance = this%avg_xsec_variance + (this%weight**2 / real(num_runs_SameEnergy)**2)
+    if (.not. NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc, &
+                                   ntrials, nsuccess, this%weight)) then
+      write(*,*) 'Failed to load required information for NuHepMC output. STOP!'
+      stop
+    end if
+    this%sum_weight = this%sum_weight + this%weight
+    this%sum_weight2 = this%sum_weight2 + this%weight**2
+    this%nevents = this%nevents + 1
+    this%ntrials = ntrials
 
-    write(this%iFile,'(A19,1X,E0.16,1X,E0.16,1X,A5)') 'A 0 GenCrossSection', this%avg_xsec, sqrt(max(0.,this%avg_xsec_variance)), '-1 -1'
+    xsec = this%sum_weight / this%ntrials
+    error = sqrt(max(0., this%sum_weight2 / this%ntrials - xsec**2) / (this%ntrials-1))
+    write(this%iFile,'(A19,1X,E0.16,1X,E0.16,1X,I0,1X,I0)') 'A 0 GenCrossSection', xsec, error, this%nevents, this%ntrials
+
 
     neutrino_pdg_code = 0
     lep_pdg_code = 0
@@ -1496,11 +1510,6 @@ contains
        end if
     else
        lep_pdg_code = neutrino_pdg_code
-    end if
-
-    if (.not. NeutrinoProdInfo_Get(iFE,prod_id_buu,per_weight,momLepIn,momLepOut,momBos,momNuc,chrg_nuc)) then
-      write(*,*) 'Failed to load required information for NuHepMC output. STOP!'
-      stop
     end if
 
     my_nuhepmc_proc_id = this%get_proc_ID(prod_id_buu)
