@@ -847,7 +847,7 @@ contains
 
     logical :: raiseFlag
 
-    integer :: numtry=0
+    integer :: numtry=0, ntrials=0
     integer,dimension(1:max_finalstate_ID)       :: numberofsuccess=0
     integer,dimension(1:max_finalstate_ID), save :: numberofsuccessfinal=0
     real :: sigtot!,sig
@@ -927,6 +927,7 @@ contains
        numberofcalls=1
        sigabsArrFinal = 0.
        numberofsuccessfinal=0
+       ntrials=0
     end if
 
     sigabsArr = 0.
@@ -1005,6 +1006,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!   BOUND NUCLEON LOOP   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
        loopNucleon: do j = lbound(realParticles,dim=2),ubound(realParticles,dim=2)
+          ntrials = ntrials + 1
 
           if (realParticles(i,j)%ID.ne.nucleon) cycle
           if (realRun) then
@@ -1267,7 +1269,8 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
           fak1 = totalWeight/float(numtry)
-          call doStoreNeutrinoInfo(firstEvent, k, fak1, eNev(k))
+          call doStoreNeutrinoInfo(firstEvent, k, fak1, eNev(k), ntrials, sum(numberofsuccess), &
+                                   totalWeight)
 
           call fillHist(k, fak1, eNev(k))
 
@@ -1968,11 +1971,11 @@ contains
     ! PURPOSE
     ! store the neutrino and the nucleon info
     !**************************************************************************
-    subroutine doStoreNeutrinoInfo(firstEvent, k, fak, eNev)
+    subroutine doStoreNeutrinoInfo(firstEvent, k, fak, eNev, ntrials, nsuccess, weight)
       use eN_eventDefinition
 
-      integer, intent(in) :: firstEvent, k
-      real, intent(in) :: fak
+      integer, intent(in) :: firstEvent, k, ntrials, nsuccess
+      real, intent(in) :: fak, weight
       type(electronNucleon_event),intent(in) :: eNeV
 
       select case (storeNucleon)
@@ -1982,14 +1985,16 @@ contains
               eNev%lepton_out%mom,&
               eNev%boson%mom,&
               eNev%nucleon_free%mom,&
-              eNev%nucleon_free%charge)
+              eNev%nucleon_free%charge,&
+              ntrials, nsuccess, weight)
       case (2)
          call neutrinoProdInfo_Store(firstEvent, k, fak,&
               eNev%lepton_in%mom,&
               eNev%lepton_out%mom,&
               eNev%boson%mom,&
               eNev%nucleon%mom,&
-              eNev%nucleon%charge)
+              eNev%nucleon%charge,&
+              ntrials, nsuccess, weight)
       end select
 
     end subroutine doStoreNeutrinoInfo
