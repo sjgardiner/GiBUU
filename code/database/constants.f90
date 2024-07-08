@@ -27,9 +27,9 @@ module constants
   real, parameter :: coscab=0.97367                           ! cosine of Cabbibo mixing angle
   real, parameter :: sinsthweinbg=0.23129                     ! sin_theta_Weinberg squared!!!
   real, parameter :: f_pi=0.093                               ! pion weak decay constant in GeV
-  real, parameter :: g_A=1.26  ! axial nucleon coupling used in nonlinear sigma model
-  real, parameter :: MV = 0.84                                ! vector mass in GeV
-  real, parameter :: MA_in = 1.03                             ! axial mass in GeV
+  real, parameter :: g_A=1.267 ! axial nucleon coupling used in nonlinear sigma model
+  real, parameter :: MV = 0.840                               ! vector mass in GeV
+  real, parameter :: MA_in = 0.990                            ! axial mass in GeV
 
   ! particle masses (in GeV):
   ! leptons

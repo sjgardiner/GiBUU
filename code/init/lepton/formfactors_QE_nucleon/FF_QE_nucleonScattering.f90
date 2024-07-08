@@ -83,8 +83,8 @@ module FF_QE_nucleonScattering
   !****************************************************************************
 
   ! constants: magnetic moments of proton and neutron
-  real, parameter :: mup = 2.793
-  real, parameter :: mun = -1.913
+  real, parameter :: mup = 2.7930
+  real, parameter :: mun = -1.913042
 
 
   logical,save :: initFlag=.true.
